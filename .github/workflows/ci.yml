@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            os: macos-latest
+          - name: Ubuntu x64
+            os: ubuntu-24.04
+          - name: Ubuntu arm64
+            os: ubuntu-24.04-arm
+          - name: Windows x64
+            os: windows-latest
+          - name: Windows ARM64
+            os: windows-11-arm
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cpm-cache
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@v4
+        with:
+          path: .cpm-cache
+          key: cpm-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake', 'Tests/CMakeLists.txt') }}
+
+      - name: Install libcurl headers for eacp's configure
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-gnutls-dev ninja-build
+
+      - name: Build, test and self-check
+        if: runner.os != 'Windows'
+        run: scripts/test.sh
+
+      - name: Build, test and self-check
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: scripts\test-windows.cmd

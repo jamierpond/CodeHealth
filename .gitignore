@@ -1,0 +1,4 @@
+build*/
+.cache/
+.cpm-cache/
+validation/private/

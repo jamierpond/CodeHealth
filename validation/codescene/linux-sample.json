@@ -1,0 +1,82 @@
+{
+ "project": "linux (sampled with code_health_score; CodeScene gives no score to headers without functions)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c",
+   "score": 2.65
+  },
+  {
+   "path": "fs/xfs/libxfs/xfs_inode_buf.c",
+   "score": 4.81
+  },
+  {
+   "path": "drivers/net/ethernet/atheros/alx/hw.c",
+   "score": 5.98
+  },
+  {
+   "path": "tools/testing/selftests/kvm/lib/guest_sprintf.c",
+   "score": 6.77
+  },
+  {
+   "path": "kernel/trace/fprobe.c",
+   "score": 5.98
+  },
+  {
+   "path": "drivers/net/ipvlan/ipvlan_main.c",
+   "score": 7.58
+  },
+  {
+   "path": "drivers/iio/pressure/dps310.c",
+   "score": 8.31
+  },
+  {
+   "path": "drivers/gpu/drm/bridge/lontium-lt9611.c",
+   "score": 8.78
+  },
+  {
+   "path": "drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c",
+   "score": 6.7
+  },
+  {
+   "path": "sound/soc/qcom/lpass-cdc-dma.c",
+   "score": 7.69
+  },
+  {
+   "path": "drivers/input/gameport/lightning.c",
+   "score": 7.63
+  },
+  {
+   "path": "drivers/regulator/uniphier-regulator.c",
+   "score": 9.45
+  },
+  {
+   "path": "drivers/fpga/stratix10-soc.c",
+   "score": 8.63
+  },
+  {
+   "path": "drivers/gpu/drm/meson/meson_osd_afbcd.c",
+   "score": 9.09
+  },
+  {
+   "path": "kernel/sched/cpuacct.c",
+   "score": 10
+  },
+  {
+   "path": "drivers/thunderbolt/switch.c",
+   "score": 2.77
+  },
+  {
+   "path": "drivers/infiniband/ulp/rtrs/rtrs-clt.c",
+   "score": 4.09
+  },
+  {
+   "path": "drivers/tty/serial/cpm_uart.c",
+   "score": 5.64
+  },
+  {
+   "path": "drivers/gpu/drm/renesas/rz-du/rzg2l_du_drv.c",
+   "score": 9.68
+  }
+ ]
+}

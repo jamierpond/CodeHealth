@@ -1,0 +1,47 @@
+{
+ "repositories": [
+  {
+   "name": "eacp",
+   "repository": "~/projects/eacp",
+   "revision": "164e034bd2f0dc267427cc93f97965e666edc132",
+   "reference": "codescene/1.json",
+   "referencePrefix": "eacp/",
+   "split": "train"
+  },
+  {
+   "name": "Miro",
+   "repository": "~/projects/Miro",
+   "revision": "e6fc9b9acd899fbafc9431637a98198d484f6fd5",
+   "reference": "codescene/1.json",
+   "referencePrefix": "Miro/",
+   "split": "test"
+  },
+  {
+   "name": "MakeASound",
+   "repository": "~/projects/MakeASound",
+   "revision": "6541045e8d2f597ad1311de69e6e811e2a79c245",
+   "reference": "codescene/1.json",
+   "referencePrefix": "MakeASound/",
+   "split": "test"
+  },
+  {
+   "name": "linux",
+   "repository": "~/codescene-clones/linux",
+   "revision": "d48723711bae9b8cdc56719c448ba42fef28cbee",
+   "reference": "codescene/linux-sample.json",
+   "referencePrefix": "",
+   "split": "test"
+  }
+ ],
+ "smellNames": {
+  "Complex Method": "Complex Method",
+  "Large Method": "Large Method",
+  "Deep Nesting": "Deep, Nested Complexity",
+  "Bumpy Road": "Bumpy Road",
+  "Complex Conditional": "Complex Conditional",
+  "Excess Arguments": "Excess Number of Function Arguments",
+  "Large File": "File Size Issue",
+  "Overall Code Complexity": "Overall Code Complexity",
+  "Primitive Obsession": "Primitive Obsession"
+ }
+}
