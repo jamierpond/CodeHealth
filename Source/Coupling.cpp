@@ -104,6 +104,8 @@ private:
         return {.firstPath = paths[first],
                 .secondPath = paths[second],
                 .sharedCommits = shared,
+                .firstCommitCount = commitCounts[first],
+                .secondCommitCount = commitCounts[second],
                 .couplingPercentage = percent * shared / fewerCommits};
     }
 

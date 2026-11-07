@@ -34,11 +34,19 @@ jobs:
           path: .cpm-cache
           key: cpm-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake', 'Tests/CMakeLists.txt') }}
 
+      # setup-just has no Windows ARM64 build; that lane calls the script just would.
       - uses: extractions/setup-just@v2
+        if: matrix.os != 'windows-11-arm'
 
       - name: Install libcurl headers for eacp's configure
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libcurl4-gnutls-dev ninja-build
 
       - name: Build, test and self-check
+        if: matrix.os != 'windows-11-arm'
         run: just test
+
+      - name: Build, test and self-check
+        if: matrix.os == 'windows-11-arm'
+        shell: cmd
+        run: scripts\test-windows.cmd

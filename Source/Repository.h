@@ -40,6 +40,10 @@ struct Analysis
 
 bool isExcludedPath(std::string_view path);
 
+std::vector<std::string> readFilesAtRef(const eacp::FilePath& repository,
+                                        const std::string& ref,
+                                        const std::vector<std::string>& paths);
+
 std::vector<FileMetrics> measureRepository(const AnalysisOptions& options);
 
 std::vector<FileHealth> assessFiles(const std::vector<FileMetrics>& metrics,

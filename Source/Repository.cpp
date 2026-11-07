@@ -83,38 +83,6 @@ std::vector<SourceFile> listSourceFiles(const eacp::FilePath& repository,
     return files;
 }
 
-// Reads files' contents at ref through one `git cat-file --batch`: a BlobHeader
-// line and the bytes per file, or "<name> missing".
-std::vector<std::string> readFilesAtRef(const eacp::FilePath& repository,
-                                        const std::string& ref,
-                                        const std::vector<std::string>& paths)
-{
-    auto requests = std::string {};
-
-    for (auto& path: paths)
-        requests += ref + ":" + path + "\n";
-
-    auto format = GitRecords::makeFormat<GitRecords::BlobHeader>(
-        std::string(1, GitRecords::fieldSeparator));
-    auto batch = runGit(repository, {"cat-file", "--batch=" + format}, requests);
-    auto contents = std::vector<std::string> {};
-    auto remaining = std::string_view {batch};
-
-    while (contents.size() < paths.size() && !remaining.empty())
-    {
-        auto headerEnd = remaining.find('\n');
-        auto header = GitRecords::readRecord<GitRecords::BlobHeader>(
-            remaining.substr(0, headerEnd));
-        remaining = remaining.substr(headerEnd + 1);
-        auto size = header ? static_cast<size_t>(header->objectSize) : size_t {0};
-        contents.emplace_back(remaining.substr(0, size));
-        remaining = remaining.substr(header ? size + 1 : 0);
-    }
-
-    contents.resize(paths.size());
-    return contents;
-}
-
 struct FileToParse
 {
     size_t index = 0;
@@ -304,6 +272,38 @@ std::vector<Hotspot> rankHotspots(const std::vector<FileHealth>& files,
     return hotspots;
 }
 } // namespace
+
+// Reads files' contents at ref through one `git cat-file --batch`: a BlobHeader
+// line and the bytes per file, or "<name> missing".
+std::vector<std::string> readFilesAtRef(const eacp::FilePath& repository,
+                                        const std::string& ref,
+                                        const std::vector<std::string>& paths)
+{
+    auto requests = std::string {};
+
+    for (auto& path: paths)
+        requests += ref + ":" + path + "\n";
+
+    auto format = GitRecords::makeFormat<GitRecords::BlobHeader>(
+        std::string(1, GitRecords::fieldSeparator));
+    auto batch = runGit(repository, {"cat-file", "--batch=" + format}, requests);
+    auto contents = std::vector<std::string> {};
+    auto remaining = std::string_view {batch};
+
+    while (contents.size() < paths.size() && !remaining.empty())
+    {
+        auto headerEnd = remaining.find('\n');
+        auto header = GitRecords::readRecord<GitRecords::BlobHeader>(
+            remaining.substr(0, headerEnd));
+        remaining = remaining.substr(headerEnd + 1);
+        auto size = header ? static_cast<size_t>(header->objectSize) : size_t {0};
+        contents.emplace_back(remaining.substr(0, size));
+        remaining = remaining.substr(header ? size + 1 : 0);
+    }
+
+    contents.resize(paths.size());
+    return contents;
+}
 
 bool isExcludedPath(std::string_view path)
 {
