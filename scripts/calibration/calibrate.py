@@ -26,7 +26,11 @@ def run(arguments):
     return subprocess.run([str(binary)] + arguments, capture_output=True, text=True, check=True).stdout
 
 def languageFamily(language):
-    return "C/C++" if language in ("C++", "C") else "TypeScript/JavaScript"
+    if language in ("C++", "C"):
+        return "C/C++"
+    if language.startswith("Objective-C"):
+        return "Objective-C/C++"
+    return "TypeScript/JavaScript"
 
 def rank(values):
     order = sorted(range(len(values)), key=lambda index: values[index])

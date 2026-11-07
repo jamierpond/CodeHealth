@@ -53,8 +53,62 @@ TSNode findSignature(TSNode function)
     return function;
 }
 
+// An Objective-C method has no name or parameter fields: it is named by its
+// selector, `setValue:forKey:`, and takes one argument per keyword.
+bool isSelectorMethod(TSNode function)
+{
+    return getNodeType(function) == "method_definition"
+           && !hasField(function, "name");
+}
+
+std::string findSelectorName(TSNode method, std::string_view source)
+{
+    auto name = std::string {};
+
+    forEachNamedChild(
+        method,
+        [&](TSNode child)
+        {
+            if (getNodeType(child) == "identifier" && name.empty())
+                name = getNodeText(child, source);
+            else if (getNodeType(child) == "keyword_declarator")
+                name += getNodeText(ts_node_named_child(child, 0), source) + ":";
+        });
+
+    return name;
+}
+
+int countSelectorArguments(TSNode method)
+{
+    auto count = 0;
+    forEachNamedChild(
+        method,
+        [&](TSNode child)
+        { count += getNodeType(child) == "keyword_declarator" ? 1 : 0; });
+    return count;
+}
+
+TSNode findBody(TSNode function)
+{
+    auto body = getField(function, "body");
+
+    if (!ts_node_is_null(body) || !isSelectorMethod(function))
+        return body;
+
+    forEachNamedChild(function,
+                      [&](TSNode child)
+                      {
+                          if (getNodeType(child) == "compound_statement")
+                              body = child;
+                      });
+    return body;
+}
+
 int countParameters(TSNode signature)
 {
+    if (isSelectorMethod(signature))
+        return countSelectorArguments(signature);
+
     if (hasField(signature, "parameter"))
         return 1;
 
@@ -74,6 +128,9 @@ int countParameters(TSNode signature)
 std::string
     findFunctionName(TSNode function, TSNode signature, std::string_view source)
 {
+    if (isSelectorMethod(function))
+        return findSelectorName(function, source);
+
     if (hasField(signature, "declarator"))
         return getNodeText(getField(signature, "declarator"), source);
 
@@ -217,8 +274,31 @@ private:
         return !ts_node_is_null(type) && isPrimitiveType(type);
     }
 
+    // `(int)value` in a selector: the keyword's method_type names the type.
+    bool hasPrimitiveSelectorArgument(TSNode method) const
+    {
+        auto hasPrimitive = false;
+        walkTree(method,
+                 true,
+                 [&](TSNode node, bool)
+                 {
+                     if (getNodeType(node) == "compound_statement")
+                         return std::optional<bool> {};
+
+                     hasPrimitive =
+                         hasPrimitive
+                         || (getNodeType(node) == "type_name"
+                             && isPrimitiveType(ts_node_named_child(node, 0)));
+                     return std::optional {true};
+                 });
+        return hasPrimitive;
+    }
+
     bool hasPrimitiveParameter(TSNode signature) const
     {
+        if (isSelectorMethod(signature))
+            return hasPrimitiveSelectorArgument(signature);
+
         auto parameters = getField(signature, "parameters");
 
         if (ts_node_is_null(parameters))
@@ -309,7 +389,7 @@ private:
             metrics.hasPrimitiveArgument = hasPrimitiveParameter(signature);
         }
 
-        auto body = getField(function, "body");
+        auto body = findBody(function);
         bumpyStatements.clear();
 
         if (!ts_node_is_null(body))

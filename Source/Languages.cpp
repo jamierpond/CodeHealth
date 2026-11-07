@@ -6,6 +6,7 @@ extern "C" const TSLanguage* tree_sitter_cpp();
 extern "C" const TSLanguage* tree_sitter_javascript();
 extern "C" const TSLanguage* tree_sitter_typescript();
 extern "C" const TSLanguage* tree_sitter_tsx();
+extern "C" const TSLanguage* tree_sitter_objcpp();
 
 namespace CodeHealth
 {
@@ -126,12 +127,28 @@ Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensio
             .referenceNodeTypes = {"identifier", "field_identifier"}};
 }
 
+// C++ plus Objective-C's methods, @try and @synchronized; the Objective-C++
+// grammar parses plain Objective-C as well.
+Language makeObjectiveCFamilyLanguage(std::string name,
+                                      std::vector<std::string> extensions)
+{
+    auto language = makeCFamilyLanguage(std::move(name), std::move(extensions));
+    language.getGrammar = tree_sitter_objcpp;
+    language.functionNodeTypes.insert("method_definition");
+    language.branchingNodeTypes.insert("objc_catch_clause");
+    language.nestingNodeTypes.insert(
+        {"objc_try_statement", "objc_catch_clause", "synchronized_statement"});
+    return language;
+}
+
 const std::vector<Language>& getLanguages()
 {
     static const auto languages = std::vector<Language> {
         makeCFamilyLanguage("C++",
                             {".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh", ".hxx"}),
         makeCFamilyLanguage("C", {".c"}),
+        makeObjectiveCFamilyLanguage("Objective-C++", {".mm"}),
+        makeObjectiveCFamilyLanguage("Objective-C", {".m"}),
         makeJavaScriptFamilyLanguage(
             "JavaScript", {".js", ".jsx", ".mjs", ".cjs"}, tree_sitter_javascript),
         makeJavaScriptFamilyLanguage(
