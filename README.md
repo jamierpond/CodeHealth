@@ -12,11 +12,13 @@ configure step needs libcurl headers (`libcurl4-gnutls-dev`), though nothing her
 links libcurl.
 
 ```bash
-scripts/build.sh      # Release build into ./build
-scripts/test.sh       # build, tests, then the self-check
+just build            # Release build into ./build
+just test             # build, tests, then the self-check
+just run ~/some/repo  # build, then run codehealth (default: this repository)
+just install          # build, then install to ~/.local/bin/codehealth
 ```
 
-On Windows, `scripts\test-windows.cmd` does the same with MSVC.
+The recipes call the scripts in `scripts/`; on Windows they use MSVC.
 
 ## Usage
 

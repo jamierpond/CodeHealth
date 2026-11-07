@@ -34,15 +34,11 @@ jobs:
           path: .cpm-cache
           key: cpm-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake', 'Tests/CMakeLists.txt') }}
 
+      - uses: extractions/setup-just@v2
+
       - name: Install libcurl headers for eacp's configure
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libcurl4-gnutls-dev ninja-build
 
       - name: Build, test and self-check
-        if: runner.os != 'Windows'
-        run: scripts/test.sh
-
-      - name: Build, test and self-check
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: scripts\test-windows.cmd
+        run: just test
