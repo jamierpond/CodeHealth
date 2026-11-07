@@ -45,6 +45,8 @@ public:
         eacp::Files::writeFile(getPath() / path, content);
     }
 
+    void stageWorkingTree() { runGit(getPath(), {"add", "-A"}); }
+
     void checkOutHead() { runGit(getPath(), {"reset", "-q", "--hard"}); }
 
     void createBranch(const std::string& name)

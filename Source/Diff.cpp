@@ -374,9 +374,9 @@ private:
         }
     }
 
-    // An include names a path ending in the changed file; a relative import
-    // names it from the importer's directory, without its extension.
-    static bool dependsOn(const FileHealth& file, const std::string& changedPath)
+    // A relative import or a quoted include is first looked for beside the
+    // file naming it; an include that is not there names a path ending in it.
+    bool dependsOn(const FileHealth& file, const std::string& changedPath) const
     {
         auto withoutExtension = eacp::FilePath {changedPath}.withExtension("").str();
         auto directory = eacp::FilePath {file.path}.parentDirectory();
@@ -385,13 +385,17 @@ private:
             file.dependencies,
             [&](const std::string& target)
             {
-                if (!target.starts_with("."))
-                    return changedPath == target
-                           || changedPath.ends_with("/" + target);
+                auto besideFile = (directory / target).lexicallyNormal().str();
 
-                auto resolved = (directory / target).lexicallyNormal().str();
-                return resolved == withoutExtension || resolved == changedPath
-                       || resolved + "/index" == withoutExtension;
+                if (besideFile == changedPath || besideFile == withoutExtension
+                    || besideFile + "/index" == withoutExtension)
+                    return true;
+
+                if (target.starts_with(".")
+                    || eacp::Files::exists(options.repository / besideFile))
+                    return false;
+
+                return changedPath == target || changedPath.ends_with("/" + target);
             });
     }
 

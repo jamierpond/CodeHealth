@@ -55,8 +55,16 @@ FixtureRepository makeChangedRepository()
 
     repository.writeWorkingFile("dirty.cpp", makeFunction("edit", worseBranches));
     repository.writeWorkingFile("util.h", "int helper();\nint other();\n");
+    repository.writeWorkingFile("lib/App.h", "int lib();\nint more();\n");
     repository.writeWorkingFile("untracked.cpp",
                                 makeFunction("fresh", complexBranches));
+    return repository;
+}
+
+// Built once: each test reads it and nothing writes to it.
+const FixtureRepository& getChangedRepository()
+{
+    static const auto repository = makeChangedRepository();
     return repository;
 }
 
@@ -82,7 +90,7 @@ bool hasFinding(const std::vector<FindingChange>& findings,
 auto tDiffChanges =
     test("Diff/committed, uncommitted, untracked, renamed and deleted changes") = []
 {
-    auto repository = makeChangedRepository();
+    auto& repository = getChangedRepository();
     auto report =
         analyseChanges({.repository = repository.getPath(), .base = "base"},
                        getDefaultScoringRules());
@@ -119,7 +127,7 @@ auto tDiffChanges =
 auto tDiffNearbyDependents = test(
     "Diff/a file that includes a changed header is listed near the changes") = []
 {
-    auto repository = makeChangedRepository();
+    auto& repository = getChangedRepository();
     auto report =
         analyseChanges({.repository = repository.getPath(), .base = "base"},
                        getDefaultScoringRules());
@@ -130,10 +138,23 @@ auto tDiffNearbyDependents = test(
         { return nearby.path == "user.cpp" && nearby.changedPath == "util.h"; }));
 };
 
+auto tDiffIncludeBesideFile =
+    test("Diff/an include is resolved beside the including file first") = []
+{
+    auto& repository = getChangedRepository();
+    auto report =
+        analyseChanges({.repository = repository.getPath(), .base = "base"},
+                       getDefaultScoringRules());
+
+    check(std::ranges::none_of(report.nearbyFiles,
+                               [](auto& nearby)
+                               { return nearby.path == "hub/Main.cpp"; }));
+};
+
 auto tDiffSummaryOrder =
     test("Diff/the summary lists degraded files before improved ones") = []
 {
-    auto repository = makeChangedRepository();
+    auto& repository = getChangedRepository();
     auto summary = formatDiffSummary(
         analyseChanges({.repository = repository.getPath(), .base = "base"},
                        getDefaultScoringRules()));
@@ -145,7 +166,7 @@ auto tDiffSummaryOrder =
 auto tDiffCleanTree =
     test("Diff/with HEAD as the base only working-tree changes show") = []
 {
-    auto repository = makeChangedRepository();
+    auto& repository = getChangedRepository();
     auto report =
         analyseChanges({.repository = repository.getPath(), .base = "HEAD"},
                        getDefaultScoringRules());

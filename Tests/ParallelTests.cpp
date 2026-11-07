@@ -43,9 +43,10 @@ auto tParallelFixture = test(
     {
         for (auto file = 0; file < fixtureFileCount; ++file)
             if ((file + commitIndex) % 3 != 0)
-                repository.stageFile("file" + std::to_string(file) + ".cpp",
-                                     makeFixtureSource(file, commitIndex));
+                repository.writeWorkingFile("file" + std::to_string(file) + ".cpp",
+                                            makeFixtureSource(file, commitIndex));
 
+        repository.stageWorkingTree();
         repository.commit("Fixture", fixtureStartTime + commitIndex);
     }
 
