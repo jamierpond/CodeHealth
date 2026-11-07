@@ -2,7 +2,7 @@
 
 A command-line tool that scores how maintainable each file in a git repository
 is, from 1 to 10, and ranks hotspots: files that change often and are complex.
-It reads C, C++, TypeScript, TSX, JavaScript and JSX.
+It reads C, C++, Objective-C, Objective-C++, TypeScript, TSX, JavaScript and JSX.
 
 ## Build
 
