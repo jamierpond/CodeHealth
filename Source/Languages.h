@@ -27,6 +27,8 @@ struct Language
     NodeTypes primitiveTypeNames {};
     NodeTypes dependencyNodeTypes {};
     std::string_view dependencyField;
+    NodeTypes identifierNodeTypes {};
+    NodeTypes literalNodeTypes {};
 };
 
 using LanguageReference = std::reference_wrapper<const Language>;

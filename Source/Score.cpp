@@ -39,6 +39,14 @@ double calculatePrimitiveArgumentPercentage(const FileMetrics& file)
            / static_cast<double>(file.functions.size());
 }
 
+double calculateDuplicatedLinePercentage(const FileMetrics& file)
+{
+    if (file.linesOfCode == 0)
+        return 0.0;
+
+    return percent * file.duplicatedLines / file.linesOfCode;
+}
+
 const std::map<std::string, FunctionMeasure, std::less<>>& getFunctionMeasures()
 {
     static const auto measures =
@@ -61,6 +69,7 @@ const std::map<std::string, FileMeasure, std::less<>>& getFileMeasures()
         {"Large File", [](auto& file) { return file.linesOfCode; }},
         {"Overall Code Complexity", calculateMeanComplexity},
         {"Primitive Obsession", calculatePrimitiveArgumentPercentage},
+        {"Code Duplication", calculateDuplicatedLinePercentage},
     };
 
     return measures;
@@ -138,18 +147,15 @@ const ScoringRules& getDefaultScoringRules()
         {.name = "Complex Method",
          .threshold = 9,
          .weight = 0.3,
-         .categoryCap = 5.6,
+         .categoryCap = 4.2,
          .thresholdByLanguage = {{"TSX", 10}, {"JSX", 10}}},
         {.name = "Large Method",
          .threshold = 70,
          .weight = 0.24,
-         .categoryCap = 2.65,
+         .categoryCap = 2.344,
          .thresholdByLanguage = {{"TSX", 120}, {"JSX", 120}}},
-        {.name = "Deep Nesting",
-         .threshold = 4,
-         .weight = 0.265,
-         .categoryCap = 8.0},
-        {.name = "Bumpy Road", .threshold = 2, .weight = 0.15, .categoryCap = 12.7},
+        {.name = "Deep Nesting", .threshold = 4, .weight = 0.265, .categoryCap = 4},
+        {.name = "Bumpy Road", .threshold = 2, .weight = 0.15, .categoryCap = 6.35},
         {.name = "Complex Conditional",
          .threshold = 1,
          .weight = 0.4,
@@ -164,8 +170,12 @@ const ScoringRules& getDefaultScoringRules()
          .categoryCap = 0.6},
         {.name = "Overall Code Complexity",
          .threshold = 4,
-         .weight = 0.006,
+         .weight = 0.002,
          .categoryCap = 0.012},
+        {.name = "Code Duplication",
+         .threshold = 5,
+         .weight = 0.299,
+         .categoryCap = 0.21},
         {.name = "Primitive Obsession",
          .threshold = 30,
          .weight = 0.02,

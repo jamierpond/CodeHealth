@@ -51,7 +51,15 @@ Language makeJavaScriptFamilyLanguage(std::string name,
             .logicalOperators = javaScriptLogicalOperators,
             .primitiveTypeNodeTypes = {"predefined_type"},
             .dependencyNodeTypes = {"import_statement"},
-            .dependencyField = "source"};
+            .dependencyField = "source",
+            .identifierNodeTypes = {"identifier",
+                                    "property_identifier",
+                                    "shorthand_property_identifier",
+                                    "shorthand_property_identifier_pattern",
+                                    "private_property_identifier",
+                                    "type_identifier"},
+            .literalNodeTypes = {
+                "number", "string_fragment", "regex_pattern", "escape_sequence"}};
 }
 
 Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensions)
@@ -90,7 +98,18 @@ Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensio
                                    "uint32_t",
                                    "uint64_t"},
             .dependencyNodeTypes = {"preproc_include"},
-            .dependencyField = "path"};
+            .dependencyField = "path",
+            .identifierNodeTypes = {"identifier",
+                                    "field_identifier",
+                                    "type_identifier",
+                                    "namespace_identifier",
+                                    "statement_identifier"},
+            .literalNodeTypes = {"number_literal",
+                                 "string_content",
+                                 "raw_string_content",
+                                 "character",
+                                 "escape_sequence",
+                                 "system_lib_string"}};
 }
 
 const std::vector<Language>& getLanguages()

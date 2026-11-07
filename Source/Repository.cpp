@@ -103,6 +103,7 @@ public:
         : options(optionsToUse)
         , files(std::move(filesToMeasure))
         , results(files.size())
+        , functionTokens(files.size())
     {
         for (auto index = size_t {0}; index < files.size(); ++index)
             largestFirst.push_back(index);
@@ -112,7 +113,7 @@ public:
                                  [&](size_t index) { return files[index].size; });
     }
 
-    std::vector<FileMetrics> measure()
+    RepositoryMeasurement measure()
     {
         auto workerCount = static_cast<size_t>(std::max(1, options.jobCount));
         auto failures = std::vector<std::exception_ptr>(workerCount + 1);
@@ -134,10 +135,28 @@ public:
             if (failure)
                 std::rethrow_exception(failure);
 
-        return std::move(results);
+        return addDuplication();
     }
 
 private:
+    RepositoryMeasurement addDuplication()
+    {
+        auto paths = std::vector<std::string> {};
+
+        for (auto& file: files)
+            paths.push_back(file.path);
+
+        auto functionClones =
+            findFunctionClones(functionTokens, paths, options.jobCount);
+        auto duplicatedLines = countDuplicatedLines(functionClones, paths);
+
+        for (auto index = size_t {0}; index < results.size(); ++index)
+            results[index].duplicatedLines = duplicatedLines[index];
+
+        return {.files = std::move(results),
+                .functionClones = std::move(functionClones)};
+    }
+
     void runCatchingFailure(std::exception_ptr& failure,
                             const std::function<void()>& work)
     {
@@ -195,7 +214,9 @@ private:
         {
             auto& path = files[file->index].path;
             auto& language = findLanguageForPath(path)->get();
-            results[file->index] = parser.measure(file->content, path, language);
+            auto measured = parser.measure(file->content, path, language);
+            results[file->index] = std::move(measured.metrics);
+            functionTokens[file->index] = std::move(measured.functionTokens);
         }
     }
 
@@ -238,6 +259,7 @@ private:
     std::vector<SourceFile> files;
     std::vector<size_t> largestFirst;
     std::vector<FileMetrics> results;
+    std::vector<std::vector<FunctionTokens>> functionTokens;
     size_t nextFile = 0;
 
     std::mutex queueMutex;
@@ -316,7 +338,7 @@ bool isExcludedPath(std::string_view path)
     return std::ranges::any_of(components, isExcludedDirectory);
 }
 
-std::vector<FileMetrics> measureRepository(const AnalysisOptions& options)
+RepositoryMeasurement measureRepository(const AnalysisOptions& options)
 {
     return ParallelMeasurer {options,
                              listSourceFiles(options.repository, options.ref)}
@@ -333,6 +355,17 @@ std::vector<FileHealth> assessFiles(const std::vector<FileMetrics>& metrics,
 
     std::ranges::stable_sort(files, std::ranges::less {}, &FileHealth::score);
     return files;
+}
+
+// Every clone counts toward its files' scores; the report lists the largest.
+std::vector<FunctionClone> keepLargestClones(std::vector<FunctionClone> clones)
+{
+    constexpr auto reportedCloneLimit = size_t {200};
+    auto size = [](const FunctionClone& clone)
+    { return clone.similarity * clone.tokenCount; };
+    std::ranges::stable_sort(clones, std::ranges::greater {}, size);
+    clones.resize(std::min(clones.size(), reportedCloneLimit));
+    return clones;
 }
 
 // History is read on its own thread while the workers parse.
@@ -354,7 +387,8 @@ Analysis analyseRepository(const AnalysisOptions& options, const ScoringRules& r
             }
         }};
 
-    auto metrics = measureRepository(options);
+    auto measurement = measureRepository(options);
+    auto& metrics = measurement.files;
     historyReader.join();
 
     if (historyFailure)
@@ -371,6 +405,8 @@ Analysis analyseRepository(const AnalysisOptions& options, const ScoringRules& r
                               .files = assessFiles(metrics, rules)};
     analysis.hotspots = rankHotspots(analysis.files, countCommitsPerFile(commits));
     analysis.couplings = findChangeCoupling(commits, analysedPaths);
+    analysis.functionClones =
+        keepLargestClones(std::move(measurement.functionClones));
     return analysis;
 }
 } // namespace CodeHealth

@@ -86,6 +86,29 @@ void appendCouplings(std::string& text, const Analysis& analysis, int entryCount
                                       coupling.firstPath,
                                       coupling.secondPath);
 }
+
+void appendFunctionClones(std::string& text,
+                          const Analysis& analysis,
+                          int entryCount)
+{
+    text +=
+        "\nDuplicated functions (similarity, tokens; only same-file pairs count toward the score)\n";
+
+    auto shown = std::min<size_t>(analysis.functionClones.size(), entryCount);
+
+    for (auto& clone: std::span {analysis.functionClones}.first(shown))
+        text +=
+            eacp::Strings::format("  {:3.0f}%  {:5}  {} in {}:{}  =  {} in {}:{}\n",
+                                  clone.similarity * 100.0,
+                                  clone.tokenCount,
+                                  clone.firstFunction,
+                                  clone.firstPath,
+                                  clone.firstStartLine,
+                                  clone.secondFunction,
+                                  clone.secondPath,
+                                  clone.secondStartLine);
+}
+
 } // namespace
 
 std::string formatHumanSummary(const Analysis& analysis, int entryCount)
@@ -95,6 +118,7 @@ std::string formatHumanSummary(const Analysis& analysis, int entryCount)
     appendWorstFiles(text, analysis, entryCount);
     appendHotspots(text, analysis, entryCount);
     appendCouplings(text, analysis, entryCount);
+    appendFunctionClones(text, analysis, entryCount);
     return text;
 }
 

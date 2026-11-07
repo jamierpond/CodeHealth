@@ -209,6 +209,8 @@ public:
                          metrics.name = enclosingName + "." + metrics.name;
 
                      functions.push_back(metrics);
+                     functionByteRanges.emplace_back(ts_node_start_byte(node),
+                                                     ts_node_end_byte(node));
                      return std::optional {metrics.name};
                  });
     }
@@ -238,8 +240,27 @@ private:
                           ++row)
                          codeRows[row] = true;
 
+                     tokens.push_back({classifyToken(node),
+                                       ts_node_start_point(node).row,
+                                       ts_node_start_byte(node)});
                      return std::nullopt;
                  });
+    }
+
+    // Identifiers and literals each fold into one kind, past every grammar symbol.
+    std::uint32_t classifyToken(TSNode node) const
+    {
+        constexpr auto identifierKind = std::uint32_t {0x10000};
+        constexpr auto literalKind = std::uint32_t {0x10001};
+        auto type = getNodeType(node);
+
+        if (language.identifierNodeTypes.contains(type))
+            return identifierKind;
+
+        if (language.literalNodeTypes.contains(type))
+            return literalKind;
+
+        return ts_node_symbol(node);
     }
 
     int countCodeRowsIn(TSNode node) const
@@ -432,7 +453,44 @@ private:
     std::string_view source;
     std::set<uint32_t> bumpyStatements;
     std::vector<bool> codeRows;
+
+public:
+    std::vector<Token> tokens;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> functionByteRanges;
 };
+
+// Each function long enough to be checked for duplication, with its tokens.
+std::vector<FunctionTokens>
+    sliceFunctionTokens(const std::vector<FunctionMetrics>& functions,
+                        const SourceMeasurer& measurer)
+{
+    constexpr auto minimumLinesOfCode = 10;
+    auto sliced = std::vector<FunctionTokens> {};
+
+    for (auto index = size_t {0}; index < functions.size(); ++index)
+    {
+        if (functions[index].length < minimumLinesOfCode)
+            continue;
+
+        auto [startByte, endByte] = measurer.functionByteRanges[index];
+        auto byStart = [](const Token& token) { return token.startByte; };
+        auto first =
+            std::ranges::lower_bound(measurer.tokens, startByte, {}, byStart);
+        auto last = std::ranges::lower_bound(measurer.tokens, endByte, {}, byStart);
+        auto function = FunctionTokens {
+            .name = functions[index].name,
+            .startLine = functions[index].startLine,
+            .endLine = first == last ? functions[index].startLine
+                                     : static_cast<int>((last - 1)->row) + 1};
+
+        for (auto token = first; token != last; ++token)
+            function.kinds.push_back(token->kind);
+
+        sliced.push_back(std::move(function));
+    }
+
+    return sliced;
+}
 
 } // namespace
 
@@ -453,9 +511,9 @@ struct SourceParser::Native
 
 SourceParser::SourceParser() = default;
 
-FileMetrics SourceParser::measure(std::string_view source,
-                                  const std::string& path,
-                                  const Language& language)
+MeasuredSource SourceParser::measure(std::string_view source,
+                                     const std::string& path,
+                                     const Language& language)
 {
     ts_parser_set_language(native->parser.get(), language.getGrammar());
 
@@ -471,6 +529,8 @@ FileMetrics SourceParser::measure(std::string_view source,
                                 .language = language.name,
                                 .linesOfCode = measurer.countLinesOfCode()};
     measurer.collectFunctions(root, metrics.functions, metrics.dependencies);
-    return metrics;
+    auto functionTokens = sliceFunctionTokens(metrics.functions, measurer);
+    return {.metrics = std::move(metrics),
+            .functionTokens = std::move(functionTokens)};
 }
 } // namespace CodeHealth

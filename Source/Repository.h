@@ -34,8 +34,10 @@ struct Analysis
     std::vector<FileHealth> files;
     std::vector<Hotspot> hotspots;
     std::vector<Coupling> couplings;
+    std::vector<FunctionClone> functionClones;
 
-    MIRO_REFLECT(repository, revision, since, files, hotspots, couplings)
+    MIRO_REFLECT(
+        repository, revision, since, files, hotspots, couplings, functionClones)
 };
 
 bool isExcludedPath(std::string_view path);
@@ -44,7 +46,13 @@ std::vector<std::string> readFilesAtRef(const eacp::FilePath& repository,
                                         const std::string& ref,
                                         const std::vector<std::string>& paths);
 
-std::vector<FileMetrics> measureRepository(const AnalysisOptions& options);
+struct RepositoryMeasurement
+{
+    std::vector<FileMetrics> files;
+    std::vector<FunctionClone> functionClones;
+};
+
+RepositoryMeasurement measureRepository(const AnalysisOptions& options);
 
 std::vector<FileHealth> assessFiles(const std::vector<FileMetrics>& metrics,
                                     const ScoringRules& rules);

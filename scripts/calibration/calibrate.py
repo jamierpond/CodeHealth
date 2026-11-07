@@ -94,7 +94,8 @@ def smellAgreement(pairs):
     lines = []
     for ours, theirs in corpus["smellNames"].items():
         flaggedByUs = {f["path"] for f, _ in pairs if any(x["biomarker"] == ours for x in f["findings"])}
-        flaggedByThem = {f["path"] for f, r in pairs if theirs in r["smells"]}
+        theirNames = theirs if isinstance(theirs, list) else [theirs]
+        flaggedByThem = {f["path"] for f, r in pairs if any(name in r["smells"] for name in theirNames)}
         both = len(flaggedByUs & flaggedByThem)
         precision = both / len(flaggedByUs) if flaggedByUs else float("nan")
         recall = both / len(flaggedByThem) if flaggedByThem else float("nan")
@@ -157,6 +158,7 @@ def evaluate(rulesPath):
 def fit():
     rules = json.loads(run(["--print-rules"]))
     train = [e for e in corpus["repositories"] if e["split"] == "train"]
+    cache.mkdir(parents=True, exist_ok=True)
     rulesPath = cache / "candidate-rules.json"
 
     def cost(candidate):
