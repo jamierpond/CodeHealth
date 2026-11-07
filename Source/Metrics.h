@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Duplication.h"
+
 #include <Miro/Reflect.h>
 #include <eacp/Core/Utils/Pimpl.h>
 
@@ -39,10 +41,18 @@ struct FileMetrics
     int linesOfCode = 0;
     std::vector<FunctionMetrics> functions;
     std::vector<std::string> dependencies;
+    int duplicatedLines = 0;
 
     int calculateTotalComplexity() const;
 
-    MIRO_REFLECT(path, language, linesOfCode, functions, dependencies)
+    MIRO_REFLECT(
+        path, language, linesOfCode, functions, dependencies, duplicatedLines)
+};
+
+struct MeasuredSource
+{
+    FileMetrics metrics;
+    std::vector<FunctionTokens> functionTokens;
 };
 
 struct Language;
@@ -53,9 +63,9 @@ class SourceParser
 public:
     SourceParser();
 
-    FileMetrics measure(std::string_view source,
-                        const std::string& path,
-                        const Language& language);
+    MeasuredSource measure(std::string_view source,
+                           const std::string& path,
+                           const Language& language);
 
 private:
     struct Native;

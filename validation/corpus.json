@@ -41,7 +41,12 @@
   "Complex Conditional": "Complex Conditional",
   "Excess Arguments": "Excess Number of Function Arguments",
   "Large File": "File Size Issue",
-  "Overall Code Complexity": "Overall Code Complexity",
-  "Primitive Obsession": "Primitive Obsession"
+  "Overall Code Complexity": "Many Conditionals",
+  "Primitive Obsession": "Primitive Obsession",
+  "Code Duplication": [
+   "High Degree of Code Duplication",
+   "Duplicated Function Blocks",
+   "Code Duplication"
+  ]
  }
 }

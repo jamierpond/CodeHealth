@@ -13,7 +13,9 @@ inline FileMetrics measureFixture(std::string_view source, std::string_view path
 {
     auto language = findLanguageForPath(path);
     nano::check(language.has_value());
-    return SourceParser {}.measure(source, std::string {path}, language->get());
+    return SourceParser {}
+        .measure(source, std::string {path}, language->get())
+        .metrics;
 }
 
 inline FunctionMetrics findFunction(const FileMetrics& file, std::string_view name)

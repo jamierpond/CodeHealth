@@ -83,7 +83,7 @@ auto tBlobRoundTrip = test(
     auto repository = FixtureRepository {};
     makeAwkwardHistory(repository);
 
-    auto metrics = measureRepository({.repository = repository.getPath()});
+    auto metrics = measureRepository({.repository = repository.getPath()}).files;
     auto awkward = std::ranges::find(metrics, awkwardPath, &FileMetrics::path);
     check(awkward != metrics.end());
     check(awkward != metrics.end()

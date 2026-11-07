@@ -128,7 +128,7 @@ FileHealth measureFile(SourceParser& parser,
                        const ScoringRules& rules)
 {
     auto& language = findLanguageForPath(path)->get();
-    return assessFileHealth(parser.measure(content, path, language), rules);
+    return assessFileHealth(parser.measure(content, path, language).metrics, rules);
 }
 
 std::map<FindingKey, Finding> indexFindings(const std::optional<FileHealth>& file)

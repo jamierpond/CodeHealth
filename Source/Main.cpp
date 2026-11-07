@@ -51,7 +51,7 @@ int checkMinimumScore(const CommandLine& command,
                       double minimum)
 {
     auto files = CodeHealth::assessFiles(
-        CodeHealth::measureRepository(command.analysis), rules);
+        CodeHealth::measureRepository(command.analysis).files, rules);
     auto failing = std::ranges::count_if(
         files, [&](auto& file) { return file.score < minimum; });
 
@@ -89,8 +89,8 @@ int runCommand(const CommandLine& command)
 
     if (command.printMetrics)
     {
-        eacp::Console::print(
-            Miro::toJSONString(measureRepository(command.analysis), jsonIndent));
+        eacp::Console::print(Miro::toJSONString(
+            measureRepository(command.analysis).files, jsonIndent));
         return 0;
     }
 
