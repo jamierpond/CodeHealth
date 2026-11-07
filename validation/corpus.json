@@ -40,13 +40,19 @@
   "Bumpy Road": "Bumpy Road",
   "Complex Conditional": "Complex Conditional",
   "Excess Arguments": "Excess Number of Function Arguments",
-  "Large File": "File Size Issue",
+  "Large File": [
+   "File Size Issue",
+   "Modularity Issue"
+  ],
   "Overall Code Complexity": "Many Conditionals",
   "Primitive Obsession": "Primitive Obsession",
   "Code Duplication": [
    "High Degree of Code Duplication",
    "Duplicated Function Blocks",
    "Code Duplication"
-  ]
+  ],
+  "Brain Method": "Brain Method",
+  "Brain Class": "Brain Class",
+  "Low Cohesion": "Low Cohesion"
  }
 }

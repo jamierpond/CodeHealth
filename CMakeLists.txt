@@ -28,6 +28,7 @@ add_library(CodeHealthCore STATIC
         Source/Languages.cpp
         Source/Metrics.cpp
         Source/Score.cpp
+        Source/Cohesion.cpp
         Source/Coupling.cpp
         Source/Diff.cpp
         Source/Duplication.cpp

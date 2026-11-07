@@ -1,5 +1,6 @@
 #include "Metrics.h"
 #include "Languages.h"
+#include "SyntaxTree.h"
 
 #include <tree_sitter/api.h>
 
@@ -28,86 +29,6 @@ struct TreeDeleter
 
 using ParserPointer = std::unique_ptr<TSParser, ParserDeleter>;
 using TreePointer = std::unique_ptr<TSTree, TreeDeleter>;
-
-// Walks the children through a cursor: ts_node_child(node, index) is linear
-// in index, so an index loop is quadratic on a node with many children.
-template <typename Visitor>
-void forEachChild(TSNode node, Visitor&& visitor)
-{
-    auto cursor = ts_tree_cursor_new(node);
-
-    if (ts_tree_cursor_goto_first_child(&cursor))
-    {
-        do
-        {
-            visitor(ts_tree_cursor_current_node(&cursor));
-        } while (ts_tree_cursor_goto_next_sibling(&cursor));
-    }
-
-    ts_tree_cursor_delete(&cursor);
-}
-
-template <typename Visitor>
-void forEachNamedChild(TSNode node, Visitor&& visitor)
-{
-    forEachChild(node,
-                 [&](TSNode child)
-                 {
-                     if (ts_node_is_named(child))
-                         visitor(child);
-                 });
-}
-
-// Visits root and everything under it depth first, in source order, without
-// recursion: a worker thread's stack is small and generated sources nest deep.
-// The visitor gets each node with its parent's context and returns the context
-// for its children, or nothing to skip them.
-template <typename Context, typename Visitor>
-void walkTree(TSNode root, Context rootContext, Visitor&& visitor)
-{
-    auto pending =
-        std::vector<std::pair<TSNode, Context>> {{root, std::move(rootContext)}};
-
-    while (!pending.empty())
-    {
-        auto [node, context] = std::move(pending.back());
-        pending.pop_back();
-
-        auto childContext = visitor(node, context);
-
-        if (!childContext)
-            continue;
-
-        auto firstChild = pending.size();
-        forEachChild(
-            node, [&](TSNode child) { pending.emplace_back(child, *childContext); });
-        std::reverse(pending.begin() + static_cast<std::ptrdiff_t>(firstChild),
-                     pending.end());
-    }
-}
-
-std::string_view getNodeType(TSNode node)
-{
-    return ts_node_type(node);
-}
-
-TSNode getField(TSNode node, std::string_view field)
-{
-    return ts_node_child_by_field_name(
-        node, field.data(), static_cast<uint32_t>(field.size()));
-}
-
-bool hasField(TSNode node, std::string_view field)
-{
-    return !ts_node_is_null(getField(node, field));
-}
-
-std::string getNodeText(TSNode node, std::string_view source)
-{
-    auto start = ts_node_start_byte(node);
-    auto end = ts_node_end_byte(node);
-    return std::string {source.substr(start, end - start)};
-}
 
 bool isElseIf(TSNode node, TSNode parent)
 {
@@ -529,6 +450,7 @@ MeasuredSource SourceParser::measure(std::string_view source,
                                 .language = language.name,
                                 .linesOfCode = measurer.countLinesOfCode()};
     measurer.collectFunctions(root, metrics.functions, metrics.dependencies);
+    metrics.classes = measureClassCohesion(root, source, language);
     auto functionTokens = sliceFunctionTokens(metrics.functions, measurer);
     return {.metrics = std::move(metrics),
             .functionTokens = std::move(functionTokens)};
