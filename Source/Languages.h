@@ -29,6 +29,10 @@ struct Language
     std::string_view dependencyField;
     NodeTypes identifierNodeTypes {};
     NodeTypes literalNodeTypes {};
+    NodeTypes classNodeTypes {};
+    NodeTypes fieldNodeTypes {};
+    NodeTypes memberNameNodeTypes {};
+    NodeTypes referenceNodeTypes {};
 };
 
 using LanguageReference = std::reference_wrapper<const Language>;

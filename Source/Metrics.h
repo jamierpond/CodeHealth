@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cohesion.h"
 #include "Duplication.h"
 
 #include <Miro/Reflect.h>
@@ -42,11 +43,17 @@ struct FileMetrics
     std::vector<FunctionMetrics> functions;
     std::vector<std::string> dependencies;
     int duplicatedLines = 0;
+    std::vector<ClassMetrics> classes;
 
     int calculateTotalComplexity() const;
 
-    MIRO_REFLECT(
-        path, language, linesOfCode, functions, dependencies, duplicatedLines)
+    MIRO_REFLECT(path,
+                 language,
+                 linesOfCode,
+                 functions,
+                 dependencies,
+                 duplicatedLines,
+                 classes)
 };
 
 struct MeasuredSource

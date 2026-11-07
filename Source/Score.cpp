@@ -14,6 +14,13 @@ constexpr auto perfectScore = 10.0;
 constexpr auto lowestScore = 1.0;
 constexpr auto percent = 100.0;
 constexpr auto minimumFunctionsForPrimitiveObsession = 7;
+// CodeScene's Brain Method is long, complex and deeply nested at once; these
+// cut-offs best match the functions it flags.
+constexpr auto brainMethodMinimumLines = 70;
+constexpr auto brainMethodMinimumNesting = 5;
+constexpr auto brainMethodMinimumComplexity = 24;
+constexpr auto brainClassMinimumLines = 1500;
+constexpr auto lowCohesionMinimumMethods = 10;
 
 using FunctionMeasure = std::function<double(const FunctionMetrics&)>;
 using FileMeasure = std::function<double(const FileMetrics&)>;
@@ -39,6 +46,43 @@ double calculatePrimitiveArgumentPercentage(const FileMetrics& file)
            / static_cast<double>(file.functions.size());
 }
 
+bool isLongAndDeeplyNested(const FunctionMetrics& function)
+{
+    return function.length >= brainMethodMinimumLines
+           && function.maximumNestingDepth >= brainMethodMinimumNesting;
+}
+
+double measureBrainMethod(const FunctionMetrics& function)
+{
+    return isLongAndDeeplyNested(function) ? function.cyclomaticComplexity : 0;
+}
+
+// A large file with many functions, one of them a Brain Method.
+double measureBrainClass(const FileMetrics& file)
+{
+    auto hasBrainMethod = std::ranges::any_of(
+        file.functions,
+        [](auto& function)
+        { return measureBrainMethod(function) >= brainMethodMinimumComplexity; });
+
+    if (!hasBrainMethod || file.linesOfCode < brainClassMinimumLines)
+        return 0;
+
+    return static_cast<double>(file.functions.size());
+}
+
+// The most unrelated method groups in any class with enough methods to judge.
+double measureLowCohesion(const FileMetrics& file)
+{
+    auto groups = 0;
+
+    for (auto& metrics: file.classes)
+        if (metrics.methodCount >= lowCohesionMinimumMethods)
+            groups = std::max(groups, metrics.cohesionGroups);
+
+    return groups;
+}
+
 double calculateDuplicatedLinePercentage(const FileMetrics& file)
 {
     if (file.linesOfCode == 0)
@@ -58,6 +102,7 @@ const std::map<std::string, FunctionMeasure, std::less<>>& getFunctionMeasures()
             {"Complex Conditional",
              [](auto& f) { return f.complexConditionalCount; }},
             {"Excess Arguments", [](auto& f) { return f.argumentCount; }},
+            {"Brain Method", measureBrainMethod},
         };
 
     return measures;
@@ -70,6 +115,8 @@ const std::map<std::string, FileMeasure, std::less<>>& getFileMeasures()
         {"Overall Code Complexity", calculateMeanComplexity},
         {"Primitive Obsession", calculatePrimitiveArgumentPercentage},
         {"Code Duplication", calculateDuplicatedLinePercentage},
+        {"Brain Class", measureBrainClass},
+        {"Low Cohesion", measureLowCohesion},
     };
 
     return measures;
@@ -152,10 +199,13 @@ const ScoringRules& getDefaultScoringRules()
         {.name = "Large Method",
          .threshold = 70,
          .weight = 0.24,
-         .categoryCap = 2.344,
+         .categoryCap = 1.559,
          .thresholdByLanguage = {{"TSX", 120}, {"JSX", 120}}},
-        {.name = "Deep Nesting", .threshold = 4, .weight = 0.265, .categoryCap = 4},
-        {.name = "Bumpy Road", .threshold = 2, .weight = 0.15, .categoryCap = 6.35},
+        {.name = "Deep Nesting",
+         .threshold = 4,
+         .weight = 0.264,
+         .categoryCap = 1.5},
+        {.name = "Bumpy Road", .threshold = 2, .weight = 0.15, .categoryCap = 3.175},
         {.name = "Complex Conditional",
          .threshold = 1,
          .weight = 0.4,
@@ -164,18 +214,27 @@ const ScoringRules& getDefaultScoringRules()
          .threshold = 5,
          .weight = 0.425,
          .categoryCap = 0.6},
-        {.name = "Large File",
-         .threshold = 1000,
-         .weight = 0.075,
-         .categoryCap = 0.6},
+        {.name = "Large File", .threshold = 1000, .weight = 0.1, .categoryCap = 0.6},
         {.name = "Overall Code Complexity",
          .threshold = 4,
-         .weight = 0.002,
+         .weight = 0.001,
          .categoryCap = 0.012},
         {.name = "Code Duplication",
          .threshold = 5,
-         .weight = 0.299,
-         .categoryCap = 0.21},
+         .weight = 8.462,
+         .categoryCap = 0.279},
+        {.name = "Brain Method",
+         .threshold = 24,
+         .weight = 0.5,
+         .categoryCap = 1.995},
+        {.name = "Brain Class",
+         .threshold = 40,
+         .weight = 0.062,
+         .categoryCap = 0.5},
+        {.name = "Low Cohesion",
+         .threshold = 25,
+         .weight = 0.011,
+         .categoryCap = 0.6},
         {.name = "Primitive Obsession",
          .threshold = 30,
          .weight = 0.02,

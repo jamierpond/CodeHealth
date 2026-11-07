@@ -64,3 +64,28 @@ auto tScoreFloor = test("Score/never drops below one") = []
 
     check(assessFileHealth(file).score >= 1.0);
 };
+
+auto tScoreBrainMethod =
+    test("Score/a long, complex and deeply nested function is a Brain Method") = []
+{
+    constexpr auto brainLength = 120;
+    constexpr auto brainComplexity = 30;
+    constexpr auto brainNesting = 6;
+    constexpr auto shallowNesting = 2;
+
+    auto brain = assessFileHealth(
+        makeFileWithOneFunction({.name = "f",
+                                 .length = brainLength,
+                                 .cyclomaticComplexity = brainComplexity,
+                                 .maximumNestingDepth = brainNesting}));
+    auto shallow = assessFileHealth(
+        makeFileWithOneFunction({.name = "f",
+                                 .length = brainLength,
+                                 .cyclomaticComplexity = brainComplexity,
+                                 .maximumNestingDepth = shallowNesting}));
+    auto isBrainMethod = [](auto& finding)
+    { return finding.biomarker == "Brain Method"; };
+
+    check(std::ranges::any_of(brain.findings, isBrainMethod));
+    check(std::ranges::none_of(shallow.findings, isBrainMethod));
+};

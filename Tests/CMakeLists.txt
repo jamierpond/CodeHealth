@@ -16,7 +16,8 @@ add_executable(CodeHealthTests
         ParallelTests.cpp
         GitRecordsTests.cpp
         DiffTests.cpp
-        DuplicationTests.cpp)
+        DuplicationTests.cpp
+        CohesionTests.cpp)
 target_link_libraries(CodeHealthTests PRIVATE NanoTest NanoTestMain CodeHealthCore)
 target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_EACP_SOURCE_DIR="${eacp_SOURCE_DIR}")
 nano_discover_tests(CodeHealthTests)

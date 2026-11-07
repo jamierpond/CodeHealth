@@ -58,8 +58,18 @@ Language makeJavaScriptFamilyLanguage(std::string name,
                                     "shorthand_property_identifier_pattern",
                                     "private_property_identifier",
                                     "type_identifier"},
-            .literalNodeTypes = {
-                "number", "string_fragment", "regex_pattern", "escape_sequence"}};
+            .literalNodeTypes = {"number",
+                                 "string_fragment",
+                                 "regex_pattern",
+                                 "escape_sequence"},
+            .classNodeTypes = {"class_declaration",
+                               "class",
+                               "abstract_class_declaration"},
+            .fieldNodeTypes = {"public_field_definition", "field_definition"},
+            .memberNameNodeTypes = {"property_identifier",
+                                    "private_property_identifier"},
+            .referenceNodeTypes = {"property_identifier",
+                                   "private_property_identifier"}};
 }
 
 Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensions)
@@ -109,7 +119,11 @@ Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensio
                                  "raw_string_content",
                                  "character",
                                  "escape_sequence",
-                                 "system_lib_string"}};
+                                 "system_lib_string"},
+            .classNodeTypes = {"class_specifier", "struct_specifier"},
+            .fieldNodeTypes = {"field_declaration"},
+            .memberNameNodeTypes = {"field_identifier"},
+            .referenceNodeTypes = {"identifier", "field_identifier"}};
 }
 
 const std::vector<Language>& getLanguages()
