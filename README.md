@@ -34,6 +34,31 @@ codehealth path/to/repo --check 9         # exit 1 if any file scores below 9
 minimum to stderr, and exits 1 if there are any. `scripts/self-check.sh` runs it
 on this repository's working tree at 9, and CI fails below that.
 
+### Changes since a base
+
+```bash
+codehealth diff develop        # merge base of develop and HEAD, against the working tree
+codehealth diff                # base: origin's default branch, else HEAD
+codehealth diff HEAD~1 --json
+codehealth diff develop --check   # exit 1 if a changed file's score dropped or gained a finding
+```
+
+Uncommitted and untracked files count. For each changed file it prints the score
+before and after, and the findings introduced, made worse and fixed, by function
+and line. "Near your changes" lists files you did not touch that usually change
+with one you did, and files that include or import one. From eacp:
+
+```
+345 changed source files since HEAD~1 (0550c80b2a)
+
+345 changed files kept their score and findings
+
+Near your changes
+   5.64  Lib/eacp/WebView/WebView/WebView-Windows.cpp  usually changes with Lib/eacp/WebView/WebView/WebView.h (31 of 49 commits)
+   8.26  Lib/eacp/GPU/Codegen/ShaderGraph.cpp  usually changes with Lib/eacp/GPU/Codegen/ShaderGraph.h (29 of 31 commits)
+   7.39  Lib/eacp/Camera/Camera-Android.cpp  depends on Lib/eacp/Camera/Camera.h
+```
+
 `--metrics`, `--rescore`, `--rules` and `--print-rules` expose the raw
 measurements and the scoring rules for calibration (`scripts/calibration/`).
 
