@@ -123,3 +123,28 @@ auto tCppLinesOfCode =
     check(measureFixture("int a;\nint b;\n", "a.cpp").linesOfCode == 2);
     check(measureFixture("int a;\nint b;", "a.cpp").linesOfCode == 2);
 };
+
+auto tObjectiveCMethods = test(
+    "ObjectiveCMetrics/methods are named by selector, with one argument per keyword") =
+    []
+{
+    auto source = R"mm(
+@implementation Store
+- (void)setValue:(int)value forKey:(NSString*)key {
+    if (value > 0 && key) { [self save:value]; }
+    for (id item in self.items) { if (item) { NSLog(@"%@", item); } }
+}
+- (int)count { return 3; }
+@end
+)mm";
+    auto file = measureFixture(source, "Store.mm");
+    check(file.language == "Objective-C++");
+    check(file.functions.size() == 2);
+
+    auto setter = findFunction(file, "setValue:forKey:");
+    check(setter.argumentCount == 2);
+    check(setter.hasPrimitiveArgument);
+    check(setter.cyclomaticComplexity == 5);
+    check(setter.maximumNestingDepth == 2);
+    check(findFunction(file, "count").argumentCount == 0);
+};
