@@ -29,6 +29,7 @@ add_library(CodeHealthCore STATIC
         Source/Metrics.cpp
         Source/Score.cpp
         Source/Coupling.cpp
+        Source/Diff.cpp
         Source/History.cpp
         Source/GitRecords.cpp
         Source/Repository.cpp

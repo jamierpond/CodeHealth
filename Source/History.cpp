@@ -124,7 +124,9 @@ std::string runGit(const eacp::FilePath& repository,
                    const std::string& input,
                    const OutputHandler& onOutput)
 {
-    auto gitArguments = eacp::Vector<std::string> {"-C", repository.str()};
+    // Reads only: no optional locks, so `git diff` does not refresh the index.
+    auto gitArguments =
+        eacp::Vector<std::string> {"--no-optional-locks", "-C", repository.str()};
 
     for (auto& argument: arguments)
         gitArguments.add(argument);

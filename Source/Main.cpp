@@ -1,6 +1,8 @@
+#include "Diff.h"
 #include "Report.h"
 
 #include <eacp/Core/App/App.h>
+#include <eacp/Core/App/AppEnvironment.h>
 #include <eacp/Core/App/Args.h>
 #include <eacp/Core/Utils/Console.h>
 #include <eacp/Core/Utils/Files.h>
@@ -102,9 +104,60 @@ int runCommand(const CommandLine& command)
     return 0;
 }
 
+struct DiffCommandLine
+{
+    CodeHealth::DiffOptions diff {.repository = eacp::FilePath {"."}};
+    bool printJson = false;
+    bool failOnRegression = false;
+};
+
+int runDiff(const eacp::Vector<std::string>& arguments)
+{
+    using namespace eacp;
+
+    auto command = DiffCommandLine {};
+    auto cli = Args::Parser {"codehealth diff",
+                             "Code Health of the source files changed since a base: "
+                             "merge base against the working tree."};
+    cli.option("--repository", command.diff.repository, "the repository to look at");
+    cli.option(
+        "--since", command.diff.since, "history read for files near the changes");
+    cli.flag("--json", command.printJson, "print the whole report as JSON");
+    cli.flag("--check",
+             command.failOnRegression,
+             "exit 1 if a changed file's score went down or a new finding appeared");
+    cli.positional(command.diff.base,
+                   "base (default: origin's default branch, else HEAD)");
+
+    if (auto code = cli.exitCodeFor(cli.parse(arguments)))
+        return *code;
+
+    auto report = CodeHealth::analyseChanges(command.diff,
+                                             CodeHealth::getDefaultScoringRules());
+
+    if (command.printJson)
+        Console::print(Miro::toJSONString(report, jsonIndent));
+    else
+        Console::print(CodeHealth::formatDiffSummary(report));
+
+    return command.failOnRegression && report.hasRegression() ? 1 : 0;
+}
+
 int runCodeHealth()
 {
     using namespace eacp;
+
+    auto& arguments = Apps::commandLineArgs();
+
+    if (arguments.size() > 1 && arguments[1] == "diff")
+    {
+        auto diffArguments = eacp::Vector<std::string> {};
+
+        for (auto index = 2; index < arguments.size(); ++index)
+            diffArguments.add(arguments[index]);
+
+        return runDiff(diffArguments);
+    }
 
     auto command = CommandLine {};
     command.analysis.jobCount =

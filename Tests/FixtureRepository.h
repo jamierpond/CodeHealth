@@ -35,6 +35,23 @@ public:
                 "100644," + hash + "," + path});
     }
 
+    void unstageFile(const std::string& path)
+    {
+        runGit(getPath(), {"update-index", "--force-remove", path});
+    }
+
+    void writeWorkingFile(const std::string& path, const std::string& content)
+    {
+        eacp::Files::writeFile(getPath() / path, content);
+    }
+
+    void checkOutHead() { runGit(getPath(), {"reset", "-q", "--hard"}); }
+
+    void createBranch(const std::string& name)
+    {
+        runGit(getPath(), {"branch", name});
+    }
+
     void commit(const std::string& authorName, long long authorTime)
     {
         runGit(getPath(),

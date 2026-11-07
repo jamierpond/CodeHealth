@@ -14,7 +14,8 @@ add_executable(CodeHealthTests
         LargeSourceTests.cpp
         CouplingTests.cpp
         ParallelTests.cpp
-        GitRecordsTests.cpp)
+        GitRecordsTests.cpp
+        DiffTests.cpp)
 target_link_libraries(CodeHealthTests PRIVATE NanoTest NanoTestMain CodeHealthCore)
 target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_EACP_SOURCE_DIR="${eacp_SOURCE_DIR}")
 nano_discover_tests(CodeHealthTests)
