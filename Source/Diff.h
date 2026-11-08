@@ -31,9 +31,11 @@ struct FileChange
     std::vector<FindingChange> introducedFindings;
     std::vector<FindingChange> worsenedFindings;
     std::vector<FindingChange> fixedFindings;
+    std::vector<Finding> findingsAfter;
 
     bool isDegraded() const;
     bool isImproved() const;
+    bool isUnchanged() const;
 
     MIRO_REFLECT(path,
                  previousPath,
@@ -43,7 +45,8 @@ struct FileChange
                  scoreChange,
                  introducedFindings,
                  worsenedFindings,
-                 fixedFindings)
+                 fixedFindings,
+                 findingsAfter)
 };
 
 // An unchanged file worth a look: it usually changes with a changed file, or

@@ -45,18 +45,20 @@ codehealth diff develop --check   # exit 1 if a changed file's score dropped or 
 
 Uncommitted and untracked files count. For each changed file it prints the score
 before and after, and the findings introduced, made worse and fixed, by function
-and line. "Near your changes" lists files you did not touch that usually change
+and line. Files whose score and findings did not change are listed under
+"Unchanged" with every finding they still have. "Near your changes" lists files you did not touch that usually change
 with one you did, and files that include or import one. From eacp:
 
 ```
-345 changed source files since HEAD~1 (0550c80b2a)
+3 changed source files since HEAD (b7e0463e26)
 
-345 changed files kept their score and findings
-
-Near your changes
-   5.64  Lib/eacp/WebView/WebView/WebView-Windows.cpp  usually changes with Lib/eacp/WebView/WebView/WebView.h (31 of 49 commits)
-   8.26  Lib/eacp/GPU/Codegen/ShaderGraph.cpp  usually changes with Lib/eacp/GPU/Codegen/ShaderGraph.h (29 of 31 commits)
-   7.39  Lib/eacp/Camera/Camera-Android.cpp  depends on Lib/eacp/Camera/Camera.h
+Unchanged
+   9.70 ->  9.70  +0.00  M Lib/eacp/Network/HTTP/Http-Android.cpp
+      Excess Arguments in nextHop at line 613 (5 >= 5)
+   9.62 ->  9.62  +0.00  M Lib/eacp/Network/WebSocket/WebSocket-Android.cpp
+      Complex Conditional in send at line 177 (1 >= 1)
+      Primitive Obsession (39.2157 >= 30)
+      - -> 10.00  +0.00  ? Lib/eacp/Network/JavaStreams-Android.h
 ```
 
 `--metrics`, `--rescore`, `--rules` and `--print-rules` expose the raw

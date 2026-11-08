@@ -1,5 +1,7 @@
 #include "Score.h"
 
+#include <eacp/Core/Utils/Format.h>
+
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -275,5 +277,21 @@ FileHealth assessFileHealth(const FileMetrics& metrics, const ScoringRules& rule
             .totalComplexity = metrics.calculateTotalComplexity(),
             .findings = std::move(collector.findings),
             .dependencies = metrics.dependencies};
+}
+
+std::string formatFinding(const Finding& finding)
+{
+    if (finding.functionName.empty())
+        return eacp::Strings::format("{} ({:g} >= {:g})",
+                                     finding.biomarker,
+                                     finding.value,
+                                     finding.threshold);
+
+    return eacp::Strings::format("{} in {} at line {} ({:g} >= {:g})",
+                                 finding.biomarker,
+                                 finding.functionName,
+                                 finding.line,
+                                 finding.value,
+                                 finding.threshold);
 }
 } // namespace CodeHealth

@@ -1,0 +1,54 @@
+{
+ "project": "llvm-project (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "clang/lib/Format/Format.cpp",
+   "score": 1.27
+  },
+  {
+   "path": "llvm/lib/Target/PowerPC/PPCTargetTransformInfo.cpp",
+   "score": 2.65
+  },
+  {
+   "path": "llvm/lib/CodeGen/SwitchLoweringUtils.cpp",
+   "score": 4.94
+  },
+  {
+   "path": "llvm/lib/ObjCopy/COFF/COFFWriter.cpp",
+   "score": 6.27
+  },
+  {
+   "path": "llvm/lib/Target/NVPTX/NVPTXPromoteParamAlign.cpp",
+   "score": 7.49
+  },
+  {
+   "path": "clang/lib/Analysis/LifetimeSafety/LoanPropagation.cpp",
+   "score": 8.89
+  },
+  {
+   "path": "llvm/lib/Target/AMDGPU/AMDGPUArgumentUsageInfo.cpp",
+   "score": 8.87
+  },
+  {
+   "path": "llvm/lib/FuzzMutate/Operations.cpp",
+   "score": 9.29
+  },
+  {
+   "path": "llvm/lib/Target/M68k/GISel/M68kRegisterBankInfo.cpp",
+   "score": 9.63
+  },
+  {
+   "path": "llvm/lib/CodeGen/ResetMachineFunctionPass.cpp",
+   "score": 10.0
+  },
+  {
+   "path": "llvm/lib/IR/Verifier.cpp",
+   "score": 1.33
+  },
+  {
+   "path": "clang/lib/Sema/SemaDeclAttr.cpp",
+   "score": 1.04
+  }
+ ]
+}

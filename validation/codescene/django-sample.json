@@ -1,0 +1,70 @@
+{
+ "project": "django (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "django/template/base.py",
+   "score": 4.61
+  },
+  {
+   "path": "django/contrib/admin/helpers.py",
+   "score": 8.45
+  },
+  {
+   "path": "docs/lint.py",
+   "score": 9.36
+  },
+  {
+   "path": "tests/auth_tests/test_management.py",
+   "score": 6.01
+  },
+  {
+   "path": "django/contrib/auth/password_validation.py",
+   "score": 8.95
+  },
+  {
+   "path": "django/contrib/auth/mixins.py",
+   "score": 9.53
+  },
+  {
+   "path": "django/utils/timezone.py",
+   "score": 10.0
+  },
+  {
+   "path": "django/db/migrations/optimizer.py",
+   "score": 9.09
+  },
+  {
+   "path": "django/contrib/admin/views/autocomplete.py",
+   "score": 9.58
+  },
+  {
+   "path": "django/core/files/utils.py",
+   "score": 9.68
+  },
+  {
+   "path": "tests/template_tests/test_response.py",
+   "score": 9.38
+  },
+  {
+   "path": "tests/resolve_url/tests.py",
+   "score": 10.0
+  },
+  {
+   "path": "django/db/models/query.py",
+   "score": 1.98
+  },
+  {
+   "path": "django/db/models/sql/query.py",
+   "score": 1.81
+  },
+  {
+   "path": "django/db/models/fields/__init__.py",
+   "score": 2.94
+  },
+  {
+   "path": "django/core/management/commands/makemigrations.py",
+   "score": 4.88
+  }
+ ]
+}

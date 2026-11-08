@@ -263,6 +263,9 @@ private:
                                   .scoreBefore = getScore(before),
                                   .scoreAfter = getScore(after)};
 
+        if (after)
+            change.findingsAfter = after->findings;
+
         if (before && after)
             change.scoreChange = after->score - before->score;
 
@@ -440,6 +443,10 @@ void appendChange(std::string& text, const FileChange& change)
 
     for (auto& finding: change.fixedFindings)
         text += formatFindingChange("fixed", finding);
+
+    if (change.isUnchanged())
+        for (auto& finding: change.findingsAfter)
+            text += "      " + formatFinding(finding) + "\n";
 }
 
 void appendChanges(std::string& text,
@@ -469,6 +476,11 @@ bool FileChange::isImproved() const
     return !isDegraded() && (scoreChange > scoreTolerance || !fixedFindings.empty());
 }
 
+bool FileChange::isUnchanged() const
+{
+    return !isDegraded() && !isImproved();
+}
+
 bool DiffReport::hasRegression() const
 {
     return std::ranges::any_of(changes,
@@ -493,13 +505,7 @@ std::string formatDiffSummary(const DiffReport& report)
     appendChanges(text, "Degraded", report, &FileChange::isDegraded);
     appendChanges(text, "Improved", report, &FileChange::isImproved);
 
-    auto unchanged = std::ranges::count_if(
-        report.changes,
-        [](auto& change) { return !change.isDegraded() && !change.isImproved(); });
-
-    if (unchanged > 0)
-        text += eacp::Strings::format(
-            "{} changed files kept their score and findings\n\n", unchanged);
+    appendChanges(text, "Unchanged", report, &FileChange::isUnchanged);
 
     if (report.nearbyFiles.empty())
         return text;

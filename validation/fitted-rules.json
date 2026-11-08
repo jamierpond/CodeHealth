@@ -1,0 +1,101 @@
+{
+ "biomarkers": [
+  {
+   "categoryCap": 3.1500000000000004,
+   "name": "Complex Method",
+   "threshold": 9,
+   "thresholdByLanguage": {
+    "JSX": 10,
+    "TSX": 10
+   },
+   "weight": 0.399
+  },
+  {
+   "categoryCap": 0.388775625,
+   "name": "Large Method",
+   "threshold": 70,
+   "thresholdByLanguage": {
+    "JSX": 120,
+    "TSX": 120
+   },
+   "weight": 0.1197
+  },
+  {
+   "categoryCap": 1.7644777500000002,
+   "name": "Deep Nesting",
+   "threshold": 4,
+   "thresholdByLanguage": {},
+   "weight": 0.264
+  },
+  {
+   "categoryCap": 2.111375,
+   "name": "Bumpy Road",
+   "threshold": 2,
+   "thresholdByLanguage": {},
+   "weight": 0.15
+  },
+  {
+   "categoryCap": 1.6,
+   "name": "Complex Conditional",
+   "threshold": 1,
+   "thresholdByLanguage": {},
+   "weight": 0.532
+  },
+  {
+   "categoryCap": 0.399,
+   "name": "Excess Arguments",
+   "threshold": 5,
+   "thresholdByLanguage": {},
+   "weight": 0.282625
+  },
+  {
+   "categoryCap": 2.8231644000000005,
+   "name": "Large File",
+   "threshold": 1000,
+   "thresholdByLanguage": {},
+   "weight": 1.2516028840000004
+  },
+  {
+   "categoryCap": 0.011970000000000001,
+   "name": "Overall Code Complexity",
+   "threshold": 4,
+   "thresholdByLanguage": {},
+   "weight": 0.009410548000000001
+  },
+  {
+   "categoryCap": 0.7421400000000001,
+   "name": "Code Duplication",
+   "threshold": 5,
+   "thresholdByLanguage": {},
+   "weight": 0.594984375
+  },
+  {
+   "categoryCap": 1.995,
+   "name": "Brain Method",
+   "threshold": 24,
+   "thresholdByLanguage": {},
+   "weight": 1.33
+  },
+  {
+   "categoryCap": 0.5,
+   "name": "Brain Class",
+   "threshold": 40,
+   "thresholdByLanguage": {},
+   "weight": 0.062
+  },
+  {
+   "categoryCap": 30.038469216000006,
+   "name": "Low Cohesion",
+   "threshold": 25,
+   "thresholdByLanguage": {},
+   "weight": 0.55070526896
+  },
+  {
+   "categoryCap": 0.056249999999999994,
+   "name": "Primitive Obsession",
+   "threshold": 30,
+   "thresholdByLanguage": {},
+   "weight": 0.0049875
+  }
+ ]
+}

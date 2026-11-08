@@ -1,0 +1,42 @@
+{
+ "project": "beast (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "include/boost/beast/http/impl/chunk_encode.hpp",
+   "score": 6.92
+  },
+  {
+   "path": "example/http/server/async-local/http_server_async_local.cpp",
+   "score": 8.69
+  },
+  {
+   "path": "test/beast/core/_detail_variant.cpp",
+   "score": 8.18
+  },
+  {
+   "path": "test/beast/websocket/stream.cpp",
+   "score": 9.56
+  },
+  {
+   "path": "include/boost/beast/_experimental/test/impl/stream.hpp",
+   "score": 9.38
+  },
+  {
+   "path": "test/beast/http/rfc7230.cpp",
+   "score": 10.0
+  },
+  {
+   "path": "include/boost/beast/http/impl/basic_parser.ipp",
+   "score": 5.23
+  },
+  {
+   "path": "include/boost/beast/websocket/impl/read.hpp",
+   "score": 2.26
+  },
+  {
+   "path": "include/boost/beast/zlib/detail/deflate_stream.ipp",
+   "score": 1.7
+  }
+ ]
+}

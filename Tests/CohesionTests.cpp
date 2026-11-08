@@ -55,3 +55,14 @@ auto tTypeScriptCohesionGroups = test(
     check(file.classes.front().methodCount == 3);
     check(file.classes.front().cohesionGroups == 1);
 };
+
+auto tGlobalScopeDefinition = test(
+    "Cohesion/a definition qualified only by the global scope, int ::f(), is measured") =
+    []
+{
+    auto file = measureFixture("struct A { int x; };\nint ::f() { return 0; }\n",
+                               "global.cpp");
+    check(file.classes.size() == 1);
+    check(file.classes.front().methodCount == 0);
+    check(file.functions.size() == 1);
+};

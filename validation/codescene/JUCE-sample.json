@@ -1,0 +1,46 @@
+{
+ "project": "JUCE (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "modules/juce_graphics/image_formats/jpglib/jdcoefct.c",
+   "score": 5.36
+  },
+  {
+   "path": "modules/juce_graphics/fonts/harfbuzz/hb-uniscribe.cc",
+   "score": 7.28
+  },
+  {
+   "path": "modules/juce_dsp/processors/juce_Oversampling.cpp",
+   "score": 8.13
+  },
+  {
+   "path": "modules/juce_gui_basics/commands/juce_ApplicationCommandManager.cpp",
+   "score": 8.85
+  },
+  {
+   "path": "modules/juce_core/native/juce_SharedCode_intel.h",
+   "score": 9.68
+  },
+  {
+   "path": "modules/juce_midi_ci/ci/juce_CIParser.cpp",
+   "score": 9.55
+  },
+  {
+   "path": "examples/Audio/AudioAppDemo.h",
+   "score": 10.0
+  },
+  {
+   "path": "modules/juce_core/text/juce_String.cpp",
+   "score": 3.19
+  },
+  {
+   "path": "modules/juce_gui_basics/components/juce_Component.cpp",
+   "score": 2.06
+  },
+  {
+   "path": "modules/juce_audio_processors/format_types/juce_VST3PluginFormat.cpp",
+   "score": 8.15
+  }
+ ]
+}

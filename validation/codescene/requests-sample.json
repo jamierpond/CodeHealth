@@ -1,0 +1,46 @@
+{
+ "project": "requests (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "src/requests/models.py",
+   "score": 4.77
+  },
+  {
+   "path": "src/requests/sessions.py",
+   "score": 6.61
+  },
+  {
+   "path": "src/requests/utils.py",
+   "score": 4.81
+  },
+  {
+   "path": "src/requests/cookies.py",
+   "score": 8.28
+  },
+  {
+   "path": "src/requests/auth.py",
+   "score": 9.0
+  },
+  {
+   "path": "tests/test_requests.py",
+   "score": 6.3
+  },
+  {
+   "path": "tests/test_utils.py",
+   "score": 9.68
+  },
+  {
+   "path": "src/requests/api.py",
+   "score": 9.38
+  },
+  {
+   "path": "src/requests/structures.py",
+   "score": 10.0
+  },
+  {
+   "path": "src/requests/compat.py",
+   "score": 10.0
+  }
+ ]
+}

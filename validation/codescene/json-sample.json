@@ -1,0 +1,58 @@
+{
+ "project": "json (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "include/nlohmann/detail/view/compare.hpp",
+   "score": 4.07
+  },
+  {
+   "path": "include/nlohmann/detail/view/number.hpp",
+   "score": 7.56
+  },
+  {
+   "path": "tests/benchmarks/json_view/bench_corpus.cpp",
+   "score": 6.99
+  },
+  {
+   "path": "include/nlohmann/detail/view/pointer.hpp",
+   "score": 8.28
+  },
+  {
+   "path": "include/nlohmann/detail/string_utils.hpp",
+   "score": 9.29
+  },
+  {
+   "path": "tests/src/fuzzer-parse_msgpack.cpp",
+   "score": 10.0
+  },
+  {
+   "path": "tests/src/unit-large_json.cpp",
+   "score": 8.68
+  },
+  {
+   "path": "tests/src/unit-bson.cpp",
+   "score": 7.18
+  },
+  {
+   "path": "tests/src/unit-testsuites.cpp",
+   "score": 5.6
+  },
+  {
+   "path": "include/nlohmann/detail/iterators/iteration_proxy.hpp",
+   "score": 10.0
+  },
+  {
+   "path": "include/nlohmann/detail/input/parser.hpp",
+   "score": 6.87
+  },
+  {
+   "path": "include/nlohmann/detail/input/binary_reader.hpp",
+   "score": 2.57
+  },
+  {
+   "path": "include/nlohmann/detail/output/serializer.hpp",
+   "score": 3.95
+  }
+ ]
+}

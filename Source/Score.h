@@ -63,6 +63,8 @@ struct ScoringRules
 
 const ScoringRules& getDefaultScoringRules();
 
+std::string formatFinding(const Finding& finding);
+
 FileHealth assessFileHealth(const FileMetrics& metrics,
                             const ScoringRules& rules = getDefaultScoringRules());
 } // namespace CodeHealth

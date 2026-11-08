@@ -14,7 +14,7 @@
    "revision": "e6fc9b9acd899fbafc9431637a98198d484f6fd5",
    "reference": "codescene/1.json",
    "referencePrefix": "Miro/",
-   "split": "test"
+   "split": "train"
   },
   {
    "name": "MakeASound",
@@ -22,7 +22,7 @@
    "revision": "6541045e8d2f597ad1311de69e6e811e2a79c245",
    "reference": "codescene/1.json",
    "referencePrefix": "MakeASound/",
-   "split": "test"
+   "split": "train"
   },
   {
    "name": "linux",
@@ -30,7 +30,95 @@
    "revision": "d48723711bae9b8cdc56719c448ba42fef28cbee",
    "reference": "codescene/linux-sample.json",
    "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "requests",
+   "repository": "~/codescene-clones/requests",
+   "revision": "3c7baaa05ab4aa49cc819ce3a819d260de19c157",
+   "reference": "codescene/requests-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "flask",
+   "repository": "~/codescene-clones/flask",
+   "revision": "49943b5a94413a530761350f04e896f76e8d620e",
+   "reference": "codescene/flask-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "django",
+   "repository": "~/codescene-clones/django",
+   "revision": "a1f2b45ce5a327f42437bdb620a817839d0bd067",
+   "reference": "codescene/django-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "fmt",
+   "repository": "~/codescene-clones/fmt",
+   "revision": "47fcd357ab6a9583f2307d1f78fdd674060efe61",
+   "reference": "codescene/fmt-sample.json",
+   "referencePrefix": "",
    "split": "test"
+  },
+  {
+   "name": "json",
+   "repository": "~/codescene-clones/json",
+   "revision": "b54267d2a74c085ff2b05b01e369ecb7dd70cec6",
+   "reference": "codescene/json-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "JUCE",
+   "repository": "~/codescene-clones/JUCE",
+   "revision": "d60b7a78030661574a615b586d9325ba7a7fa7dd",
+   "reference": "codescene/JUCE-sample.json",
+   "referencePrefix": "",
+   "split": "test"
+  },
+  {
+   "name": "beast",
+   "repository": "~/codescene-clones/beast",
+   "revision": "77f5a663968e8db95481d97c0828eddf50a4ded5",
+   "reference": "codescene/beast-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "obs-studio",
+   "repository": "~/codescene-clones/obs-studio",
+   "revision": "7a25c3fd8b5eb87c2d2e0606cae36e32014bc6fa",
+   "reference": "codescene/obs-studio-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "llvm-project",
+   "repository": "~/codescene-clones/llvm-project",
+   "revision": "3a34e810f3844371c6fa1f164741cf22c3c513ff",
+   "reference": "codescene/llvm-project-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "googletest",
+   "repository": "~/codescene-clones/googletest",
+   "revision": "6450691fd7d07ef932582206fbafb1a513927e08",
+   "reference": "codescene/googletest-sample.json",
+   "referencePrefix": "",
+   "split": "train"
+  },
+  {
+   "name": "abseil-cpp",
+   "repository": "~/codescene-clones/abseil-cpp",
+   "revision": "b652a9f424a1ceeaa86efb77bc7c6c1cab84a2f8",
+   "reference": "codescene/abseil-cpp-sample.json",
+   "referencePrefix": "",
+   "split": "train"
   }
  ],
  "smellNames": {

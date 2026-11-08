@@ -1,0 +1,46 @@
+{
+ "project": "googletest (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "googletest/src/gtest-filepath.cc",
+   "score": 6.67
+  },
+  {
+   "path": "googletest/test/gtest_pred_impl_unittest.cc",
+   "score": 7.1
+  },
+  {
+   "path": "googletest/test/googletest-death-test-test.cc",
+   "score": 6.89
+  },
+  {
+   "path": "googletest/test/googletest-listener-test.cc",
+   "score": 8.75
+  },
+  {
+   "path": "googlemock/test/gmock-matchers-arithmetic_test.cc",
+   "score": 6.49
+  },
+  {
+   "path": "googletest/src/gtest-internal-inl.h",
+   "score": 10.0
+  },
+  {
+   "path": "googlemock/src/gmock-cardinalities.cc",
+   "score": 10.0
+  },
+  {
+   "path": "googlemock/include/gmock/gmock-more-actions.h",
+   "score": 10.0
+  },
+  {
+   "path": "googletest/src/gtest.cc",
+   "score": 2.51
+  },
+  {
+   "path": "googletest/src/gtest-port.cc",
+   "score": 9.38
+  }
+ ]
+}

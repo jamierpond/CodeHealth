@@ -16,6 +16,8 @@ namespace
 constexpr auto bumpNestingDepth = 2;
 constexpr auto complexConditionalOperatorCount = 2;
 constexpr auto anonymousFunctionName = "<anonymous>";
+constexpr auto quoteCharacters = std::string_view {"\"'<>`"};
+const std::set<std::string_view> typeWrapperNodeTypes {"type_annotation", "type"};
 
 struct ParserDeleter
 {
@@ -104,7 +106,19 @@ TSNode findBody(TSNode function)
     return body;
 }
 
-int countParameters(TSNode signature)
+bool isArgument(TSNode parameter, const Language& language, std::string_view source)
+{
+    auto type = getNodeType(parameter);
+
+    if (type == "comment" || language.ignoredParameterNodeTypes.contains(type))
+        return false;
+
+    return !language.implicitParameterNames.contains(getNodeText(parameter, source));
+}
+
+int countParameters(TSNode signature,
+                    const Language& language,
+                    std::string_view source)
 {
     if (isSelectorMethod(signature))
         return countSelectorArguments(signature);
@@ -112,16 +126,10 @@ int countParameters(TSNode signature)
     if (hasField(signature, "parameter"))
         return 1;
 
-    auto parameters = getField(signature, "parameters");
     auto count = 0;
-
-    forEachNamedChild(parameters,
+    forEachNamedChild(getField(signature, "parameters"),
                       [&](TSNode parameter)
-                      {
-                          if (getNodeType(parameter) != "comment")
-                              ++count;
-                      });
-
+                      { count += isArgument(parameter, language, source) ? 1 : 0; });
     return count;
 }
 
@@ -177,8 +185,7 @@ public:
                      if (isDependency(node))
                          dependencies.push_back(findDependencyTarget(node));
 
-                     if (!isFunction(node)
-                         || (!enclosingName.empty() && !isNamedFunction(node)))
+                     if (!startsOwnFunction(node, enclosingName))
                          return std::optional {enclosingName};
 
                      auto metrics = measureFunction(node);
@@ -255,8 +262,13 @@ private:
         if (language.primitiveTypeNodeTypes.contains(type))
             return true;
 
-        return type == "type_identifier"
+        return ts_node_child_count(node) == 0
                && language.primitiveTypeNames.contains(getNodeText(node, source));
+    }
+
+    bool startsOwnFunction(TSNode node, const std::string& enclosingName) const
+    {
+        return isFunction(node) && (enclosingName.empty() || isNamedFunction(node));
     }
 
     // The parameter's own type, unwrapped from a TypeScript annotation or a
@@ -265,13 +277,16 @@ private:
     {
         auto type = getField(parameter, "type");
 
-        if (!ts_node_is_null(type) && getNodeType(type) == "type_annotation")
+        if (ts_node_is_null(type))
+            return false;
+
+        if (typeWrapperNodeTypes.contains(getNodeType(type)))
             type = ts_node_named_child(type, 0);
 
-        if (!ts_node_is_null(type) && getNodeType(type) == "qualified_identifier")
+        if (getNodeType(type) == "qualified_identifier")
             type = getField(type, "name");
 
-        return !ts_node_is_null(type) && isPrimitiveType(type);
+        return isPrimitiveType(type);
     }
 
     // `(int)value` in a selector: the keyword's method_type names the type.
@@ -317,12 +332,22 @@ private:
         return language.dependencyNodeTypes.contains(getNodeType(node));
     }
 
+    std::string findFirstFieldText(TSNode node,
+                                   const std::vector<std::string_view>& fields) const
+    {
+        for (auto field: fields)
+            if (hasField(node, field))
+                return getNodeText(getField(node, field), source);
+
+        return {};
+    }
+
     // "Foo.h", <vector> and './foo' all become the bare target.
     std::string findDependencyTarget(TSNode node) const
     {
-        auto target = getNodeText(getField(node, language.dependencyField), source);
+        auto target = findFirstFieldText(node, language.dependencyFields);
         auto isQuote = [](char c)
-        { return c == '"' || c == '\'' || c == '<' || c == '>' || c == '`'; };
+        { return quoteCharacters.find(c) != std::string_view::npos; };
         auto first = std::ranges::find_if_not(target, isQuote);
         auto last = std::find_if_not(target.rbegin(), target.rend(), isQuote).base();
         return first < last ? std::string {first, last} : std::string {};
@@ -342,7 +367,7 @@ private:
 
     bool isLogicalOperation(TSNode node) const
     {
-        if (getNodeType(node) != "binary_expression")
+        if (!language.logicalOperationNodeTypes.contains(getNodeType(node)))
             return false;
 
         auto operatorNode = getField(node, "operator");
@@ -385,7 +410,7 @@ private:
         if (!ts_node_is_null(signature))
         {
             metrics.name = findFunctionName(function, signature, source);
-            metrics.argumentCount = countParameters(signature);
+            metrics.argumentCount = countParameters(signature, language, source);
             metrics.hasPrimitiveArgument = hasPrimitiveParameter(signature);
         }
 
@@ -423,14 +448,21 @@ private:
         if (isComplexConditional(node))
             ++metrics.complexConditionalCount;
 
-        auto nests = language.nestingNodeTypes.contains(getNodeType(node))
-                     && !isElseIf(node, position.parent);
+        return enterNode(node, position, metrics);
+    }
 
-        if (nests && position.depth == 0)
-            position.topLevelStatement = node;
+    // Moves one level deeper for a nesting statement, and records the bump the
+    // node sits in once it is deep enough.
+    WalkPosition
+        enterNode(TSNode node, WalkPosition position, FunctionMetrics& metrics)
+    {
+        if (isNesting(node, position.parent))
+        {
+            if (position.depth == 0)
+                position.topLevelStatement = node;
 
-        if (nests)
             ++position.depth;
+        }
 
         metrics.maximumNestingDepth =
             std::max(metrics.maximumNestingDepth, position.depth);
@@ -440,6 +472,12 @@ private:
 
         position.parent = node;
         return position;
+    }
+
+    bool isNesting(TSNode node, TSNode parent) const
+    {
+        return language.nestingNodeTypes.contains(getNodeType(node))
+               && !isElseIf(node, parent);
     }
 
     bool isComplexConditional(TSNode node) const

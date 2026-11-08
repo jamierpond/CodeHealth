@@ -11,7 +11,7 @@ corpus.json lists more repositories, and reviews.json holds function-level
 findings copied from CodeScene's reviews
 (fetch-codescene.py writes those). Measurements are cached per revision in
 build/calibration, so only scoring reruns while fitting."""
-import json, math, os, pathlib, subprocess, sys
+import itertools, json, math, os, pathlib, subprocess, sys
 
 root = pathlib.Path(__file__).resolve().parents[2]
 binary = root / "build" / ("codehealth.exe" if os.name == "nt" else "codehealth")
@@ -30,6 +30,8 @@ def languageFamily(language):
         return "C/C++"
     if language.startswith("Objective-C"):
         return "Objective-C/C++"
+    if language == "Python":
+        return "Python"
     return "TypeScript/JavaScript"
 
 def rank(values):
@@ -94,46 +96,68 @@ def objective(pairsBySplit):
             total += meanError + 2.0 * (1.0 - (0.0 if math.isnan(correlation) else correlation))
     return total
 
+def ratio(part, whole):
+    return part / whole if whole else float("nan")
+
+def filesWeFlag(pairs, biomarker):
+    return {f["path"] for f, _ in pairs if any(x["biomarker"] == biomarker for x in f["findings"])}
+
+def filesTheyFlag(pairs, smellNames):
+    names = smellNames if isinstance(smellNames, list) else [smellNames]
+    return {f["path"] for f, r in pairs if any(name in r["smells"] for name in names)}
+
 def smellAgreement(pairs):
     lines = []
     for ours, theirs in corpus["smellNames"].items():
-        flaggedByUs = {f["path"] for f, _ in pairs if any(x["biomarker"] == ours for x in f["findings"])}
-        theirNames = theirs if isinstance(theirs, list) else [theirs]
-        flaggedByThem = {f["path"] for f, r in pairs if any(name in r["smells"] for name in theirNames)}
+        flaggedByUs, flaggedByThem = filesWeFlag(pairs, ours), filesTheyFlag(pairs, theirs)
         both = len(flaggedByUs & flaggedByThem)
-        precision = both / len(flaggedByUs) if flaggedByUs else float("nan")
-        recall = both / len(flaggedByThem) if flaggedByThem else float("nan")
-        lines.append(f"    {ours:24} files flagged: ours {len(flaggedByUs):4}  theirs {len(flaggedByThem):4}  both {both:4}  precision {precision:4.2f}  recall {recall:4.2f}")
+        lines.append(f"    {ours:24} files flagged: ours {len(flaggedByUs):4}  theirs {len(flaggedByThem):4}  both {both:4}"
+                     f"  precision {ratio(both, len(flaggedByUs)):4.2f}  recall {ratio(both, len(flaggedByThem)):4.2f}")
     return lines
+
+def theirHotspots(entry, pairs):
+    prefix = entry["referencePrefix"]
+    ranked = sorted(pairs, key=lambda p: -p[1]["changeFrequency"] * p[1]["linesOfCode"])
+    return [r["path"][len(prefix):] for _, r in ranked][:hotspotListLength]
+
+def ourHotspots(analysis, pairs):
+    matched = {f["path"] for f, _ in pairs}
+    return [h["path"] for h in analysis["hotspots"] if h["path"] in matched][:hotspotListLength]
 
 def hotspotAgreement(entry, pairs):
     analysis = json.loads(run([os.path.expanduser(entry["repository"]), "--ref", entry["revision"], "--json"]))
     commits = {h["path"]: h["commitCount"] for h in analysis["hotspots"]}
     shared = [(commits[f["path"]], r["changeFrequency"]) for f, r in pairs if f["path"] in commits]
-    frequencyCorrelation = spearman([a for a, _ in shared], [b for _, b in shared])
-    ourTop = [h["path"] for h in analysis["hotspots"] if h["path"] in {f["path"] for f, _ in pairs}][:hotspotListLength]
-    theirTop = [r["path"][len(entry["referencePrefix"]):] for _, r in sorted(pairs, key=lambda p: -p[1]["changeFrequency"] * p[1]["linesOfCode"])][:hotspotListLength]
-    overlap = len(set(ourTop) & set(theirTop))
+    frequencyCorrelation = spearman(*zip(*shared)) if shared else float("nan")
+    overlap = len(set(ourHotspots(analysis, pairs)) & set(theirHotspots(entry, pairs)))
     return f"    change frequency Spearman {frequencyCorrelation:.2f} over {len(shared)} files; top {hotspotListLength} hotspot overlap {overlap}/{hotspotListLength}"
 
-def functionAgreement(entry, rulesPath):
+def loadReviews(entry):
     reviewsFile = privateDirectory / "reviews.json"
-    if not reviewsFile.exists():
-        return []
-    reviews = json.loads(reviewsFile.read_text()).get(entry["name"], {})
+    return json.loads(reviewsFile.read_text()).get(entry["name"], {}) if reviewsFile.exists() else {}
+
+functionBiomarkers = {"Large Method", "Deep Nesting", "Bumpy Road", "Complex Method", "Excess Arguments"}
+
+def functionsWith(found, biomarker):
+    return {function for name, function in found if name == biomarker}
+
+def tallyReviewedFile(findings, ourFindings, counts):
+    reviewed = {b for b, _, _ in findings} | functionBiomarkers
+    theirs = {(biomarker, function) for biomarker, function, _ in findings}
+    mine = {(x["biomarker"], x["functionName"]) for x in ourFindings if x["functionName"] and x["biomarker"] in reviewed}
+    for biomarker in {b for b, _ in theirs | mine}:
+        tally = counts.setdefault(biomarker, [0, 0, 0])
+        for slot, found in enumerate((theirs & mine, mine, theirs)):
+            tally[slot] += len(functionsWith(found, biomarker))
+
+def functionAgreement(entry, rulesPath):
+    reviews = loadReviews(entry)
     if not reviews:
         return []
     ours = score(entry, rulesPath)
     counts = {}
     for path, findings in reviews.items():
-        theirs = {(biomarker, function) for biomarker, function, _ in findings}
-        mine = {(x["biomarker"], x["functionName"]) for x in ours[path]["findings"]
-                if x["functionName"] and x["biomarker"] in {b for b, _, _ in findings} | {"Large Method", "Deep Nesting", "Bumpy Road", "Complex Method", "Excess Arguments"}}
-        for biomarker in {b for b, _ in theirs | mine}:
-            tally = counts.setdefault(biomarker, [0, 0, 0])
-            tally[0] += len({f for b, f in theirs & mine if b == biomarker})
-            tally[1] += len({f for b, f in mine if b == biomarker})
-            tally[2] += len({f for b, f in theirs if b == biomarker})
+        tallyReviewedFile(findings, ours[path]["findings"], counts)
     return [f"    per function {biomarker:20} both {both:3}  ours {mine:3}  theirs {theirs:3}"
             for biomarker, (both, mine, theirs) in sorted(counts.items())]
 
@@ -144,20 +168,33 @@ def describeScores(label, group):
     correlation, meanError = summarise(group)
     return f"  {label:34} {len(group):5} files  Spearman {correlation:5.2f}  mean absolute error {meanError:4.2f}"
 
+def printScores(pairs):
+    for family, group in sorted(groupByFamily(pairs).items()):
+        print(describeScores(family, group))
+        imperfect = [(f, r) for f, r in group if f["score"] < 10 or r["score"] < 10]
+        if len(imperfect) != len(group) and len(imperfect) >= 3:
+            print(describeScores(family + ", either below 10", imperfect))
+
 def evaluate(rulesPath):
     for entry in corpus["repositories"]:
         pairs = pairScores(entry, rulesPath)
         print(f"{entry['name']} ({entry['split']}): {len(pairs)} files matched")
-        for family, group in sorted(groupByFamily(pairs).items()):
-            print(describeScores(family, group))
-            imperfect = [(f, r) for f, r in group if f["score"] < 10 or r["score"] < 10]
-            if len(imperfect) != len(group) and len(imperfect) >= 3:
-                print(describeScores(family + ", either below 10", imperfect))
-        if isSampled(entry):
-            continue
-        print("\n".join(smellAgreement(pairs)))
-        print("\n".join(functionAgreement(entry, rulesPath)))
-        print(hotspotAgreement(entry, pairs))
+        printScores(pairs)
+        if not isSampled(entry):
+            print("\n".join(smellAgreement(pairs)))
+            print("\n".join(functionAgreement(entry, rulesPath)))
+            print(hotspotAgreement(entry, pairs))
+
+def tryFactor(rules, step, cost, best):
+    _, biomarker, field, factor = step
+    original = biomarker[field]
+    biomarker[field] = original * factor
+    candidate = cost(rules)
+    if candidate < best - 1e-4:
+        print(f"  {biomarker['name']} {field} -> {biomarker[field]:.3f}  cost {candidate:.3f}")
+        return candidate
+    biomarker[field] = original
+    return best
 
 def fit():
     rules = json.loads(run(["--print-rules"]))
@@ -171,18 +208,9 @@ def fit():
 
     best = cost(rules)
     print(f"start cost {best:.3f}")
-    for sweep in range(4):
-        for biomarker in rules["biomarkers"]:
-            for field in ("weight", "categoryCap"):
-                for factor in (0.5, 0.75, 1.33, 2.0):
-                    original = biomarker[field]
-                    biomarker[field] = original * factor
-                    candidate = cost(rules)
-                    if candidate < best - 1e-4:
-                        best = candidate
-                        print(f"  sweep {sweep}: {biomarker['name']} {field} -> {biomarker[field]:.3f}  cost {best:.3f}")
-                    else:
-                        biomarker[field] = original
+    steps = itertools.product(range(4), rules["biomarkers"], ("weight", "categoryCap"), (0.5, 0.75, 1.33, 2.0))
+    for step in steps:
+        best = tryFactor(rules, step, cost, best)
     target = root / "validation/fitted-rules.json"
     target.write_text(json.dumps(rules, indent=1))
     print(f"wrote {target}\n")

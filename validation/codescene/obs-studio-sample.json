@@ -1,0 +1,46 @@
+{
+ "project": "obs-studio (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "plugins/obs-outputs/rtmp-hevc.c",
+   "score": 4.9
+  },
+  {
+   "path": "libobs/audio-monitoring/monitoring-mix.c",
+   "score": 7.49
+  },
+  {
+   "path": "plugins/oss-audio/oss-input.c",
+   "score": 6.43
+  },
+  {
+   "path": "frontend/widgets/OBSBasic_SysTray.cpp",
+   "score": 9.09
+  },
+  {
+   "path": "plugins/decklink/DecklinkOutput.cpp",
+   "score": 9.09
+  },
+  {
+   "path": "libobs/obs-display.c",
+   "score": 9.61
+  },
+  {
+   "path": "libobs/obs-missing-files.c",
+   "score": 9.68
+  },
+  {
+   "path": "frontend/components/VolumeSlider.cpp",
+   "score": 9.84
+  },
+  {
+   "path": "libobs/obs-source.c",
+   "score": 2.04
+  },
+  {
+   "path": "frontend/widgets/OBSBasic.cpp",
+   "score": 3.82
+  }
+ ]
+}

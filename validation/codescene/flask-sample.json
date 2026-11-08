@@ -1,0 +1,38 @@
+{
+ "project": "flask (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "src/flask/app.py",
+   "score": 4.4
+  },
+  {
+   "path": "src/flask/helpers.py",
+   "score": 8.57
+  },
+  {
+   "path": "tests/test_blueprints.py",
+   "score": 6.89
+  },
+  {
+   "path": "src/flask/debughelpers.py",
+   "score": 9.45
+  },
+  {
+   "path": "src/flask/ctx.py",
+   "score": 9.68
+  },
+  {
+   "path": "src/flask/templating.py",
+   "score": 9.38
+  },
+  {
+   "path": "tests/test_cli.py",
+   "score": 10.0
+  },
+  {
+   "path": "tests/test_views.py",
+   "score": 9.38
+  }
+ ]
+}

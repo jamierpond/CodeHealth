@@ -1,0 +1,58 @@
+{
+ "project": "fmt (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "include/fmt/format.h",
+   "score": 2.18
+  },
+  {
+   "path": "test/gtest/gmock/gmock.h",
+   "score": 5.93
+  },
+  {
+   "path": "test/gtest/gtest/gtest.h",
+   "score": 7.21
+  },
+  {
+   "path": "include/fmt/compile.h",
+   "score": 10.0
+  },
+  {
+   "path": "test/fuzzing/chrono-duration.cc",
+   "score": 9.18
+  },
+  {
+   "path": "test/gtest-extra-test.cc",
+   "score": 8.28
+  },
+  {
+   "path": "test/fuzzing/two-args.cc",
+   "score": 9.58
+  },
+  {
+   "path": "test/os-test.cc",
+   "score": 10.0
+  },
+  {
+   "path": "include/fmt/enum.h",
+   "score": 9.38
+  },
+  {
+   "path": "include/fmt/args.h",
+   "score": 10.0
+  },
+  {
+   "path": "test/core-test.cc",
+   "score": 8.28
+  },
+  {
+   "path": "include/fmt/chrono.h",
+   "score": 5.18
+  },
+  {
+   "path": "src/os.cc",
+   "score": 9.68
+  }
+ ]
+}

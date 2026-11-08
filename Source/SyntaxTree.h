@@ -16,6 +16,9 @@ namespace CodeHealth
 template <typename Visitor>
 inline void forEachChild(TSNode node, Visitor&& visitor)
 {
+    if (ts_node_is_null(node))
+        return;
+
     auto cursor = ts_tree_cursor_new(node);
 
     if (ts_tree_cursor_goto_first_child(&cursor))
@@ -86,6 +89,9 @@ inline bool hasField(TSNode node, std::string_view field)
 
 inline std::string getNodeText(TSNode node, std::string_view source)
 {
+    if (ts_node_is_null(node))
+        return {};
+
     auto start = ts_node_start_byte(node);
     auto end = ts_node_end_byte(node);
     return std::string {source.substr(start, end - start)};

@@ -1,0 +1,46 @@
+{
+ "project": "abseil-cpp (sampled with code_health_score)",
+ "sampled": true,
+ "files": [
+  {
+   "path": "absl/strings/internal/cord_rep_btree_test.cc",
+   "score": 6.84
+  },
+  {
+   "path": "absl/strings/substitute.cc",
+   "score": 8.88
+  },
+  {
+   "path": "absl/strings/internal/cord_rep_btree.h",
+   "score": 9.58
+  },
+  {
+   "path": "absl/strings/str_cat.h",
+   "score": 9.68
+  },
+  {
+   "path": "absl/base/internal/poison.cc",
+   "score": 10.0
+  },
+  {
+   "path": "absl/functional/bind_front_test.cc",
+   "score": 8.81
+  },
+  {
+   "path": "absl/log/internal/check_op.cc",
+   "score": 10.0
+  },
+  {
+   "path": "absl/status/statusor.cc",
+   "score": 10.0
+  },
+  {
+   "path": "absl/container/internal/raw_hash_set.h",
+   "score": 7.35
+  },
+  {
+   "path": "absl/time/internal/cctz/src/time_zone_info.cc",
+   "score": 4.81
+  }
+ ]
+}

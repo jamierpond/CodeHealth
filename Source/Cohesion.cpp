@@ -15,6 +15,7 @@ struct Method
 {
     std::string name;
     std::set<std::string> references;
+    std::set<std::string> selfAttributes;
 };
 
 class DisjointGroups
@@ -102,6 +103,10 @@ private:
             getField(classNode, "body"),
             [&](TSNode member)
             {
+                if (language.definitionWrapperNodeTypes.contains(
+                        getNodeType(member)))
+                    member = getField(member, "definition");
+
                 if (language.fieldNodeTypes.contains(getNodeType(member)))
                     addFieldNames(member, fields);
                 else if (language.functionNodeTypes.contains(getNodeType(member)))
@@ -111,6 +116,10 @@ private:
 
         for (auto& method: outOfLineMethodsByClass[name])
             methods.push_back(method);
+
+        for (auto& method: methods)
+            fields.insert(method.selfAttributes.begin(),
+                          method.selfAttributes.end());
 
         return {.name = name,
                 .startLine =
@@ -176,6 +185,10 @@ private:
                      if (language.referenceNodeTypes.contains(getNodeType(node)))
                          method.references.insert(getNodeText(node, source));
 
+                     if (isSelfAttribute(node))
+                         method.selfAttributes.insert(
+                             getNodeText(getField(node, "attribute"), source));
+
                      return std::optional {true};
                  });
 
@@ -190,12 +203,20 @@ private:
 
         auto qualified = findQualifiedName(node);
 
-        if (ts_node_is_null(qualified))
+        // `int ::f()` names the global scope: no class to attach it to.
+        if (ts_node_is_null(qualified) || !hasField(qualified, "scope"))
             return;
 
         auto className = getNodeText(getField(qualified, "scope"), source);
         outOfLineMethodsByClass[className].push_back(
             describeMethod(node, getNodeText(getField(qualified, "name"), source)));
+    }
+
+    bool isSelfAttribute(TSNode node) const
+    {
+        return getNodeType(node) == "attribute" && hasField(node, "object")
+               && language.selfNames.contains(
+                   getNodeText(getField(node, "object"), source));
     }
 
     TSNode findQualifiedName(TSNode function) const

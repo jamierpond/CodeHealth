@@ -3,6 +3,9 @@
 #include <eacp/Core/Utils/Format.h>
 
 #include <algorithm>
+#include <span>
+#include <string_view>
+#include <vector>
 
 namespace CodeHealth
 {
@@ -16,22 +19,6 @@ struct RankedFunctionFinding
     std::string path;
     Finding finding;
 };
-
-std::string formatFinding(const Finding& finding)
-{
-    if (finding.functionName.empty())
-        return eacp::Strings::format("{} ({:g} >= {:g})",
-                                     finding.biomarker,
-                                     finding.value,
-                                     finding.threshold);
-
-    return eacp::Strings::format("{} in {} at line {} ({:g} >= {:g})",
-                                 finding.biomarker,
-                                 finding.functionName,
-                                 finding.line,
-                                 finding.value,
-                                 finding.threshold);
-}
 
 void appendWorstFiles(std::string& text, const Analysis& analysis, int entryCount)
 {
@@ -56,57 +43,52 @@ void appendWorstFiles(std::string& text, const Analysis& analysis, int entryCoun
     }
 }
 
-void appendHotspots(std::string& text, const Analysis& analysis, int entryCount)
+template <typename Entry, typename FormatEntry>
+void appendSection(std::string& text,
+                   std::string_view heading,
+                   const std::vector<Entry>& entries,
+                   int entryCount,
+                   FormatEntry formatEntry)
 {
-    text += "\nHotspots (commits x complexity)\n";
+    text += heading;
 
-    auto shown = std::min<size_t>(analysis.hotspots.size(), entryCount);
+    auto shown = std::min<size_t>(entries.size(), entryCount);
 
-    for (auto& hotspot: std::span {analysis.hotspots}.first(shown))
-        text +=
-            eacp::Strings::format("  {:7}  {:4} commits  complexity {:5}  health "
-                                  "{:5.2f}  {}\n",
-                                  hotspot.hotspotScore,
-                                  hotspot.commitCount,
-                                  hotspot.totalComplexity,
-                                  hotspot.healthScore,
-                                  hotspot.path);
+    for (auto& entry: std::span {entries}.first(shown))
+        text += formatEntry(entry);
 }
 
-void appendCouplings(std::string& text, const Analysis& analysis, int entryCount)
+std::string formatHotspot(const Hotspot& hotspot)
 {
-    text += "\nChange coupling (shared commits, share of the less-changed file)\n";
-
-    auto shown = std::min<size_t>(analysis.couplings.size(), entryCount);
-
-    for (auto& coupling: std::span {analysis.couplings}.first(shown))
-        text += eacp::Strings::format("  {:4}  {:5.1f}%  {}  <->  {}\n",
-                                      coupling.sharedCommits,
-                                      coupling.couplingPercentage,
-                                      coupling.firstPath,
-                                      coupling.secondPath);
+    return eacp::Strings::format(
+        "  {:7}  {:4} commits  complexity {:5}  health {:5.2f}  {}\n",
+        hotspot.hotspotScore,
+        hotspot.commitCount,
+        hotspot.totalComplexity,
+        hotspot.healthScore,
+        hotspot.path);
 }
 
-void appendFunctionClones(std::string& text,
-                          const Analysis& analysis,
-                          int entryCount)
+std::string formatCoupling(const Coupling& coupling)
 {
-    text +=
-        "\nDuplicated functions (similarity, tokens; only same-file pairs count toward the score)\n";
+    return eacp::Strings::format("  {:4}  {:5.1f}%  {}  <->  {}\n",
+                                 coupling.sharedCommits,
+                                 coupling.couplingPercentage,
+                                 coupling.firstPath,
+                                 coupling.secondPath);
+}
 
-    auto shown = std::min<size_t>(analysis.functionClones.size(), entryCount);
-
-    for (auto& clone: std::span {analysis.functionClones}.first(shown))
-        text +=
-            eacp::Strings::format("  {:3.0f}%  {:5}  {} in {}:{}  =  {} in {}:{}\n",
-                                  clone.similarity * 100.0,
-                                  clone.tokenCount,
-                                  clone.firstFunction,
-                                  clone.firstPath,
-                                  clone.firstStartLine,
-                                  clone.secondFunction,
-                                  clone.secondPath,
-                                  clone.secondStartLine);
+std::string formatFunctionClone(const FunctionClone& clone)
+{
+    return eacp::Strings::format("  {:3.0f}%  {:5}  {} in {}:{}  =  {} in {}:{}\n",
+                                 clone.similarity * 100.0,
+                                 clone.tokenCount,
+                                 clone.firstFunction,
+                                 clone.firstPath,
+                                 clone.firstStartLine,
+                                 clone.secondFunction,
+                                 clone.secondPath,
+                                 clone.secondStartLine);
 }
 
 } // namespace
@@ -116,9 +98,23 @@ std::string formatHumanSummary(const Analysis& analysis, int entryCount)
     auto text = eacp::Strings::format(
         "{} files analysed at {}\n\n", analysis.files.size(), analysis.revision);
     appendWorstFiles(text, analysis, entryCount);
-    appendHotspots(text, analysis, entryCount);
-    appendCouplings(text, analysis, entryCount);
-    appendFunctionClones(text, analysis, entryCount);
+    appendSection(text,
+                  "\nHotspots (commits x complexity)\n",
+                  analysis.hotspots,
+                  entryCount,
+                  formatHotspot);
+    appendSection(
+        text,
+        "\nChange coupling (shared commits, share of the less-changed file)\n",
+        analysis.couplings,
+        entryCount,
+        formatCoupling);
+    appendSection(text,
+                  "\nDuplicated functions (similarity, tokens; only same-file "
+                  "pairs count toward the score)\n",
+                  analysis.functionClones,
+                  entryCount,
+                  formatFunctionClone);
     return text;
 }
 

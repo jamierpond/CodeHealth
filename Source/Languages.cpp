@@ -7,6 +7,7 @@ extern "C" const TSLanguage* tree_sitter_javascript();
 extern "C" const TSLanguage* tree_sitter_typescript();
 extern "C" const TSLanguage* tree_sitter_tsx();
 extern "C" const TSLanguage* tree_sitter_objcpp();
+extern "C" const TSLanguage* tree_sitter_python();
 
 namespace CodeHealth
 {
@@ -52,7 +53,7 @@ Language makeJavaScriptFamilyLanguage(std::string name,
             .logicalOperators = javaScriptLogicalOperators,
             .primitiveTypeNodeTypes = {"predefined_type"},
             .dependencyNodeTypes = {"import_statement"},
-            .dependencyField = "source",
+            .dependencyFields = {"source"},
             .identifierNodeTypes = {"identifier",
                                     "property_identifier",
                                     "shorthand_property_identifier",
@@ -109,7 +110,7 @@ Language makeCFamilyLanguage(std::string name, std::vector<std::string> extensio
                                    "uint32_t",
                                    "uint64_t"},
             .dependencyNodeTypes = {"preproc_include"},
-            .dependencyField = "path",
+            .dependencyFields = {"path"},
             .identifierNodeTypes = {"identifier",
                                     "field_identifier",
                                     "type_identifier",
@@ -141,14 +142,66 @@ Language makeObjectiveCFamilyLanguage(std::string name,
     return language;
 }
 
+Language makePythonLanguage()
+{
+    return {.name = "Python",
+            .extensions = {".py", ".pyi"},
+            .getGrammar = tree_sitter_python,
+            .functionNodeTypes = {"function_definition"},
+            .branchingNodeTypes = {"if_statement",
+                                   "elif_clause",
+                                   "for_statement",
+                                   "while_statement",
+                                   "except_clause",
+                                   "with_statement",
+                                   "conditional_expression",
+                                   "for_in_clause",
+                                   "if_clause",
+                                   "case_clause"},
+            .nestingNodeTypes = {"if_statement",
+                                 "for_statement",
+                                 "while_statement",
+                                 "try_statement",
+                                 "with_statement",
+                                 "match_statement"},
+            .logicalOperators = {"and", "or"},
+            .logicalOperationNodeTypes = {"boolean_operator"},
+            .primitiveTypeNames = {"int", "str", "float", "bool", "bytes"},
+            .dependencyNodeTypes = {"import_statement", "import_from_statement"},
+            .dependencyFields = {"module_name", "name"},
+            .identifierNodeTypes = {"identifier"},
+            .literalNodeTypes = {"integer",
+                                 "float",
+                                 "string_content",
+                                 "escape_sequence"},
+            .classNodeTypes = {"class_definition"},
+            .referenceNodeTypes = {"identifier"},
+            .ignoredParameterNodeTypes = {"keyword_separator",
+                                          "positional_separator",
+                                          "comment"},
+            .implicitParameterNames = {"self", "cls"},
+            .selfNames = {"self"},
+            .definitionWrapperNodeTypes = {"decorated_definition"}};
+}
+
 const std::vector<Language>& getLanguages()
 {
     static const auto languages = std::vector<Language> {
         makeCFamilyLanguage("C++",
-                            {".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh", ".hxx"}),
+                            {".cpp",
+                             ".cc",
+                             ".cxx",
+                             ".h",
+                             ".hpp",
+                             ".hh",
+                             ".hxx",
+                             ".ipp",
+                             ".inl",
+                             ".tpp"}),
         makeCFamilyLanguage("C", {".c"}),
         makeObjectiveCFamilyLanguage("Objective-C++", {".mm"}),
         makeObjectiveCFamilyLanguage("Objective-C", {".m"}),
+        makePythonLanguage(),
         makeJavaScriptFamilyLanguage(
             "JavaScript", {".js", ".jsx", ".mjs", ".cjs"}, tree_sitter_javascript),
         makeJavaScriptFamilyLanguage(
