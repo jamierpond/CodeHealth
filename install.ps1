@@ -2,6 +2,7 @@
 #   irm https://raw.githubusercontent.com/jamierpond/CodeHealth/main/install.ps1 | iex
 # $env:CODEHEALTH_VERSION picks a release (e.g. v0.1.0; default: the latest).
 # $env:CODEHEALTH_INSTALL_DIR picks where it goes (default: ~\.local\bin).
+# $env:CODEHEALTH_NO_MODIFY_PATH leaves the user PATH alone.
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
@@ -43,7 +44,7 @@ try {
     New-Item -ItemType Directory -Force -Path $installDir | Out-Null
     Copy-Item -Force (Join-Path $workDir 'unpacked\codehealth.exe') (Join-Path $installDir 'codehealth.exe')
     Write-Host "installed $(& (Join-Path $installDir 'codehealth.exe') --version) to $installDir\codehealth.exe"
-    Add-ToUserPath $installDir
+    if (-not $env:CODEHEALTH_NO_MODIFY_PATH) { Add-ToUserPath $installDir }
 } finally {
     Remove-Item -Recurse -Force $workDir
 }
