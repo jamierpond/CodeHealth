@@ -15,8 +15,9 @@ struct FindingChange
     int line = 0;
     double valueBefore = 0.0;
     double valueAfter = 0.0;
+    double threshold = 0.0;
 
-    MIRO_REFLECT(biomarker, functionName, line, valueBefore, valueAfter)
+    MIRO_REFLECT(biomarker, functionName, line, valueBefore, valueAfter, threshold)
 };
 
 // A changed source file: before is the merge base, after is the working tree.
@@ -78,6 +79,8 @@ struct DiffReport
     std::vector<NearbyFile> nearbyFiles;
 
     bool hasRegression() const;
+    bool hasScoreDrop() const;
+    bool hasNewFinding() const;
 
     MIRO_REFLECT(base, mergeBase, changes, nearbyFiles)
 };

@@ -31,6 +31,7 @@ add_library(CodeHealthCore STATIC
         Source/Cohesion.cpp
         Source/Coupling.cpp
         Source/Diff.cpp
+        Source/GitHubReport.cpp
         Source/Duplication.cpp
         Source/DuplicateView.cpp
         Source/CommandNames.cpp

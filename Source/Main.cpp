@@ -1,5 +1,6 @@
 #include "CommandNames.h"
 #include "Diff.h"
+#include "GitHubReport.h"
 #include "DuplicateView.h"
 #include "Report.h"
 
@@ -120,7 +121,43 @@ struct DiffCommandLine
     CodeHealth::DiffOptions diff {.repository = eacp::FilePath {"."}};
     bool printJson = false;
     bool failOnRegression = false;
+    std::string format = "text";
+    std::string failOn;
+    eacp::FilePath summaryPath;
 };
+
+void printDiffReport(const DiffCommandLine& command,
+                     const CodeHealth::DiffReport& report)
+{
+    if (command.printJson || command.format == "json")
+        eacp::Console::print(Miro::toJSONString(report, jsonIndent));
+    else if (command.format == "github")
+        eacp::Console::print(CodeHealth::formatGitHubAnnotations(report));
+    else
+        eacp::Console::print(CodeHealth::formatDiffSummary(report));
+}
+
+void writeStepSummary(const DiffCommandLine& command,
+                      const CodeHealth::DiffReport& report)
+{
+    if (command.summaryPath.empty())
+        return;
+
+    eacp::Files::appendFile(command.summaryPath,
+                            CodeHealth::formatGitHubStepSummary(report));
+}
+
+std::optional<CodeHealth::FailureRule>
+    chooseFailureRule(const DiffCommandLine& command)
+{
+    if (!command.failOn.empty())
+        return CodeHealth::findFailureRule(command.failOn);
+
+    if (command.failOnRegression)
+        return CodeHealth::FailureRule::scoreDrop;
+
+    return CodeHealth::FailureRule::never;
+}
 
 int runDiff(const eacp::Vector<std::string>& arguments)
 {
@@ -134,24 +171,51 @@ int runDiff(const eacp::Vector<std::string>& arguments)
     cli.option(
         "--since", command.diff.since, "history read for files near the changes");
     cli.flag("--json", command.printJson, "print the whole report as JSON");
+    cli.option("--format",
+               command.format,
+               "text, json, or github (workflow annotations on each new or "
+               "worsened finding)");
+    cli.option("--summary",
+               command.summaryPath,
+               "append a Markdown table of score changes to this file "
+               "(a GitHub step summary)");
     cli.flag("--check",
              command.failOnRegression,
              "exit 1 if a changed file's score went down or a new finding appeared");
+    cli.option("--fail-on",
+               command.failOn,
+               "score-drop, new-finding or never: what exits 1 (--check is "
+               "score-drop)");
     cli.positional(command.diff.base,
                    "base (default: origin's default branch, else HEAD)");
 
     if (auto code = cli.exitCodeFor(cli.parse(arguments)))
         return *code;
 
+    auto rule = chooseFailureRule(command);
+
+    if (!rule)
+    {
+        Console::printError("--fail-on takes score-drop, new-finding or never");
+        return 2;
+    }
+
     auto report = CodeHealth::analyseChanges(command.diff,
                                              CodeHealth::getDefaultScoringRules());
+    printDiffReport(command, report);
+    writeStepSummary(command, report);
 
-    if (command.printJson)
-        Console::print(Miro::toJSONString(report, jsonIndent));
+    auto failure = CodeHealth::findGateFailure(report, *rule);
+
+    if (!failure)
+        return 0;
+
+    if (command.format == "github")
+        Console::print(CodeHealth::formatGitHubFailure(*failure));
     else
-        Console::print(CodeHealth::formatDiffSummary(report));
+        Console::printError(*failure);
 
-    return command.failOnRegression && report.hasRegression() ? 1 : 0;
+    return 1;
 }
 
 bool isStandardOutputTerminal()

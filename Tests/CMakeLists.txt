@@ -21,7 +21,8 @@ add_executable(CodeHealthTests
         CommandNamesTests.cpp
         CohesionTests.cpp
         PythonMetricsTests.cpp
-        PythonRulesTests.cpp)
+        PythonRulesTests.cpp
+        GitHubReportTests.cpp)
 target_link_libraries(CodeHealthTests PRIVATE NanoTest NanoTestMain CodeHealthCore)
 target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_EACP_SOURCE_DIR="${eacp_SOURCE_DIR}")
 nano_discover_tests(CodeHealthTests)

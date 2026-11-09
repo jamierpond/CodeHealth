@@ -149,7 +149,8 @@ FindingChange describeFinding(const Finding& after, double valueBefore)
             .functionName = after.functionName,
             .line = after.line,
             .valueBefore = valueBefore,
-            .valueAfter = after.value};
+            .valueAfter = after.value,
+            .threshold = after.threshold};
 }
 
 void collectIntroducedAndWorsened(
@@ -483,12 +484,19 @@ bool FileChange::isUnchanged() const
 
 bool DiffReport::hasRegression() const
 {
-    return std::ranges::any_of(changes,
-                               [](auto& change)
-                               {
-                                   return change.scoreChange < -scoreTolerance
-                                          || !change.introducedFindings.empty();
-                               });
+    return hasScoreDrop() || hasNewFinding();
+}
+
+bool DiffReport::hasScoreDrop() const
+{
+    return std::ranges::any_of(
+        changes, [](auto& change) { return change.scoreChange < -scoreTolerance; });
+}
+
+bool DiffReport::hasNewFinding() const
+{
+    return std::ranges::any_of(
+        changes, [](auto& change) { return !change.introducedFindings.empty(); });
 }
 
 DiffReport analyseChanges(const DiffOptions& options, const ScoringRules& rules)
