@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: macos-universal
+            os: macos-latest
+          - target: linux-x64
+            os: ubuntu-22.04
+          - target: linux-arm64
+            os: ubuntu-22.04-arm
+          - target: windows-x64
+            os: windows-latest
+          - target: windows-arm64
+            os: windows-11-arm
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cpm-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: .cpm-cache
+          key: cpm-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake', 'Tests/CMakeLists.txt') }}
+
+      - name: Install build tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-gnutls-dev ninja-build
+
+      - name: Install Ninja
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Build
+        if: runner.os == 'Linux'
+        run: scripts/build.sh
+
+      - name: Build for Apple silicon and Intel
+        if: runner.os == 'macOS'
+        run: scripts/build.sh "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+
+      - name: Build
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: scripts\build-windows.cmd
+
+      - name: Package
+        shell: bash
+        run: scripts/package-release.sh ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/*.sha256
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist
+          cat *.sha256 > SHA256SUMS
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --title "codehealth $GITHUB_REF_NAME" --generate-notes \
+            *.tar.gz *.zip *.sha256 SHA256SUMS
