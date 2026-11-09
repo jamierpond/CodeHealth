@@ -121,6 +121,38 @@ auto tCopyWithinFile = test(
     check(found.duplicatedLineCounts.front() >= 2 * linesPerFixtureFunction);
 };
 
+auto tDuplicatedFunctionCount =
+    test("Duplication/each function cloned within its file counts once") = []
+{
+    auto source = makeLongFunction("first", "value")
+                  + makeLongFunction("second", "other")
+                  + makeLongFunction("third", "count");
+    auto found = findClonesIn({{"a.cpp", source}, {"b.cpp", source}});
+    auto counts = countDuplicatedFunctions(found.functions, {"a.cpp", "b.cpp"});
+
+    check(counts == std::vector<int> {3, 3});
+};
+
+auto tCopyWithinFileInLargeRepository = test(
+    "Duplication/a copy within one file is found even when its code is common across the repository") =
+    []
+{
+    constexpr auto filesSharingTheCode = 300;
+    auto files = std::vector<std::pair<std::string, std::string>> {
+        {"a.cpp",
+         makeLongFunction("first", "value") + makeLongFunction("second", "value")}};
+
+    for (auto index = 0; index < filesSharingTheCode; ++index)
+        files.emplace_back("other" + std::to_string(index) + ".cpp",
+                           makeLongFunction("copy", "value"));
+
+    auto found = findClonesIn(files);
+    auto isWithinFirstFile = [](auto& clone)
+    { return clone.firstPath == "a.cpp" && clone.secondPath == "a.cpp"; };
+
+    check(std::ranges::any_of(found.functions, isWithinFirstFile));
+};
+
 auto tDifferentCodeIsNotAClone =
     test("Duplication/unrelated code shares no clone") = []
 {

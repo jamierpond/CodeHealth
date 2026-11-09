@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 
 namespace CodeHealth
 {
@@ -39,6 +40,28 @@ std::vector<int>
 
         counts.push_back(covered);
     }
+
+    return counts;
+}
+std::vector<int>
+    countDuplicatedFunctions(const std::vector<FunctionClone>& functionClones,
+                             const std::vector<std::string>& paths)
+{
+    auto startLinesByPath = std::map<std::string, std::set<int>> {};
+
+    for (auto& clone: functionClones)
+    {
+        if (clone.firstPath != clone.secondPath)
+            continue;
+
+        startLinesByPath[clone.firstPath].insert(clone.firstStartLine);
+        startLinesByPath[clone.firstPath].insert(clone.secondStartLine);
+    }
+
+    auto counts = std::vector<int> {};
+
+    for (auto& path: paths)
+        counts.push_back(static_cast<int>(startLinesByPath[path].size()));
 
     return counts;
 }

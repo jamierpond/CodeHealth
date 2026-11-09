@@ -80,4 +80,10 @@ std::size_t
 std::vector<int>
     countDuplicatedLines(const std::vector<FunctionClone>& functionClones,
                          const std::vector<std::string>& paths);
+
+// Functions in a clone of another function in the same file, each counted once,
+// per path. CodeScene's Python duplication grows with this count.
+std::vector<int>
+    countDuplicatedFunctions(const std::vector<FunctionClone>& functionClones,
+                             const std::vector<std::string>& paths);
 } // namespace CodeHealth

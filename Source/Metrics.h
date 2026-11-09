@@ -43,7 +43,9 @@ struct FileMetrics
     std::vector<FunctionMetrics> functions;
     std::vector<std::string> dependencies;
     int duplicatedLines = 0;
+    int duplicatedFunctionCount = 0;
     std::vector<ClassMetrics> classes;
+    int moduleCohesionGroups = 0;
 
     int calculateTotalComplexity() const;
 
@@ -53,7 +55,9 @@ struct FileMetrics
                  functions,
                  dependencies,
                  duplicatedLines,
-                 classes)
+                 duplicatedFunctionCount,
+                 classes,
+                 moduleCohesionGroups)
 };
 
 struct MeasuredSource

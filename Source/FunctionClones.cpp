@@ -82,10 +82,14 @@ public:
         : paths(pathsToUse)
     {
         for (auto file = std::uint32_t {0}; file < functionsPerFile.size(); ++file)
+        {
+            firstEntryOfFile.push_back(entries.size());
+
             for (auto& function: functionsPerFile[file])
                 entries.push_back({.file = file,
                                    .tokens = &function,
                                    .bag = makeTrigramBag(function.kinds)});
+        }
 
         orderByRarity();
         buildPrefixIndex();
@@ -162,13 +166,7 @@ private:
         auto clones = std::vector<FunctionClone> {};
 
         for (auto trigram: entry.rarestPrefix)
-        {
-            auto& posting = postings.at(trigram);
-
-            if (posting.size() > maximumPostingLength)
-                continue;
-
-            for (auto other: posting)
+            for (auto other: selectCandidates(postings.at(trigram), entry))
             {
                 if (other >= index || lastSeen[other] == index)
                     continue;
@@ -178,9 +176,24 @@ private:
                 if (auto clone = confirmClone(entries[other], entry))
                     clones.push_back(*clone);
             }
-        }
 
         return clones;
+    }
+
+    // A trigram shared by too many functions in the repository still finds
+    // copies within the entry's own file, where duplication counts toward the
+    // score: in a large repository every trigram of a short function is common.
+    std::span<const size_t> selectCandidates(const std::vector<size_t>& posting,
+                                             const FunctionEntry& entry) const
+    {
+        if (posting.size() <= maximumPostingLength)
+            return posting;
+
+        auto index = static_cast<size_t>(&entry - entries.data());
+        auto fileStart = firstEntryOfFile[entry.file];
+        auto first = std::ranges::lower_bound(posting, fileStart);
+        auto last = std::ranges::lower_bound(posting, index);
+        return {first, last};
     }
 
     std::optional<FunctionClone> confirmClone(const FunctionEntry& first,
@@ -218,6 +231,7 @@ private:
 
     const std::vector<std::string>& paths;
     std::vector<FunctionEntry> entries;
+    std::vector<size_t> firstEntryOfFile;
     std::unordered_map<Trigram, std::vector<size_t>> postings;
 };
 } // namespace

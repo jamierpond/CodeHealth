@@ -149,9 +149,13 @@ private:
         auto functionClones =
             findFunctionClones(functionTokens, paths, options.jobCount);
         auto duplicatedLines = countDuplicatedLines(functionClones, paths);
+        auto duplicatedFunctions = countDuplicatedFunctions(functionClones, paths);
 
         for (auto index = size_t {0}; index < results.size(); ++index)
+        {
             results[index].duplicatedLines = duplicatedLines[index];
+            results[index].duplicatedFunctionCount = duplicatedFunctions[index];
+        }
 
         return {.files = std::move(results),
                 .functionClones = std::move(functionClones)};
