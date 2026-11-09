@@ -2,3 +2,4 @@ build*/
 .cache/
 .cpm-cache/
 validation/private/
+__pycache__/
