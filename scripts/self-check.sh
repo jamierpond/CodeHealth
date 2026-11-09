@@ -7,7 +7,7 @@ binary=build/codehealth
 [ -x build/codehealth.exe ] && binary=build/codehealth.exe
 index=$(mktemp)
 trap 'rm -f "$index"' EXIT
-cp .git/index "$index"
+cp "$(git rev-parse --git-path index)" "$index"
 GIT_INDEX_FILE="$index" git add -A
 tree=$(GIT_INDEX_FILE="$index" git write-tree)
 "$binary" . --ref "$tree" --check 9
