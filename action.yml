@@ -1,0 +1,42 @@
+name: codehealth
+description: Fails a pull request whose changed files lose Code Health, with an annotation on each new finding.
+branding:
+  icon: activity
+  color: green
+
+inputs:
+  base:
+    description: Commit or ref to compare with. Default, the pull request's base (on a push, the commit before it).
+    default: ""
+  fail-on:
+    description: "score-drop (a changed file's score fell or it gained a finding), new-finding, or never."
+    default: score-drop
+  version:
+    description: codehealth release to run.
+    default: v0.1.0
+
+runs:
+  using: composite
+  steps:
+    - id: target
+      shell: bash
+      run: '"$GITHUB_ACTION_PATH/action/detect-target.sh" >> "$GITHUB_OUTPUT"'
+
+    - id: cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}
+        key: codehealth-${{ inputs.version }}-${{ steps.target.outputs.target }}
+
+    - if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: '"$GITHUB_ACTION_PATH/action/download.sh" "${{ inputs.version }}" "${{ steps.target.outputs.target }}" "$RUNNER_TOOL_CACHE/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}"'
+
+    - shell: bash
+      run: '"$GITHUB_ACTION_PATH/action/check.sh"'
+      env:
+        CODEHEALTH_BINARY: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}/codehealth${{ runner.os == 'Windows' && '.exe' || '' }}
+        CODEHEALTH_BASE: ${{ inputs.base }}
+        CODEHEALTH_FAIL_ON: ${{ inputs.fail-on }}
+        PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}

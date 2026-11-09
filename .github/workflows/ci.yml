@@ -50,3 +50,11 @@ jobs:
         if: matrix.os == 'windows-11-arm'
         shell: cmd
         run: scripts\test-windows.cmd
+
+  codehealth:
+    name: Code Health of the changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./

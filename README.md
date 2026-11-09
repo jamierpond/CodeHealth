@@ -2,7 +2,57 @@
 
 A command-line tool that scores how maintainable each file in a git repository
 is, from 1 to 10, and ranks hotspots: files that change often and are complex.
-It reads C, C++, Objective-C, Objective-C++, TypeScript, TSX, JavaScript and JSX.
+It reads C, C++, Objective-C, Objective-C++, Python, TypeScript, TSX, JavaScript
+and JSX.
+
+## Install
+
+macOS and Linux (x64 or arm64), into `~/.local/bin` (or `$CODEHEALTH_INSTALL_DIR`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jamierpond/CodeHealth/main/install.sh | sh
+```
+
+Windows (x64 or ARM64), PowerShell, into `~\.local\bin` (added to your user PATH):
+
+```powershell
+irm https://raw.githubusercontent.com/jamierpond/CodeHealth/main/install.ps1 | iex
+```
+
+Both download the latest release, check its SHA-256 and print the installed
+version. `CODEHEALTH_VERSION=v0.1.0` picks a release.
+
+## In a pull request
+
+```yaml
+on: pull_request
+jobs:
+  codehealth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jamierpond/CodeHealth@v1
+```
+
+The action downloads the released binary for the runner (cached), fetches just
+enough history to find the pull request's base, and runs `codehealth diff`. Each
+new finding is an error annotation on its file and line, with the number, the
+limit and a fix, for example `processOrder: 14 branches, limit 9: split the
+decisions into named functions`; a finding that got worse is a warning. The job
+summary lists each changed file's score before and after. Inputs:
+
+- `fail-on`: `score-drop` (default: a changed file's score fell or it gained a
+  finding), `new-finding`, or `never`.
+- `base`: the commit to compare with (default: the pull request's base).
+- `version`: the codehealth release to run.
+
+Without the action, after installing:
+
+```yaml
+      - run: codehealth diff ${{ github.event.pull_request.base.sha }} --format github --fail-on new-finding
+```
+
+(the checkout needs the base commit: `fetch-depth: 0`, or fetch it first).
 
 ## Build
 
@@ -69,6 +119,7 @@ codehealth diff develop        # merge base of develop and HEAD, against the wor
 codehealth diff                # base: origin's default branch, else HEAD
 codehealth diff HEAD~1 --json
 codehealth diff develop --check   # exit 1 if a changed file's score dropped or gained a finding
+codehealth diff main --format github --fail-on new-finding --summary summary.md
 ```
 
 Uncommitted and untracked files count. For each changed file it prints the score
