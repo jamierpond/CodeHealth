@@ -44,18 +44,18 @@ void appendWorstFiles(std::string& text, const Analysis& analysis, int entryCoun
 }
 
 template <typename Entry, typename FormatEntry>
-void appendSection(std::string& text,
-                   std::string_view heading,
-                   const std::vector<Entry>& entries,
-                   int entryCount,
-                   FormatEntry formatEntry)
+std::string formatSection(std::string_view heading,
+                          const std::vector<Entry>& entries,
+                          int entryCount,
+                          FormatEntry formatEntry)
 {
-    text += heading;
-
+    auto text = std::string {heading};
     auto shown = std::min<size_t>(entries.size(), entryCount);
 
     for (auto& entry: std::span {entries}.first(shown))
         text += formatEntry(entry);
+
+    return text;
 }
 
 std::string formatHotspot(const Hotspot& hotspot)
@@ -98,23 +98,20 @@ std::string formatHumanSummary(const Analysis& analysis, int entryCount)
     auto text = eacp::Strings::format(
         "{} files analysed at {}\n\n", analysis.files.size(), analysis.revision);
     appendWorstFiles(text, analysis, entryCount);
-    appendSection(text,
-                  "\nHotspots (commits x complexity)\n",
-                  analysis.hotspots,
-                  entryCount,
-                  formatHotspot);
-    appendSection(
-        text,
+    text += formatSection("\nHotspots (commits x complexity)\n",
+                          analysis.hotspots,
+                          entryCount,
+                          formatHotspot);
+    text += formatSection(
         "\nChange coupling (shared commits, share of the less-changed file)\n",
         analysis.couplings,
         entryCount,
         formatCoupling);
-    appendSection(text,
-                  "\nDuplicated functions (similarity, tokens; only same-file "
-                  "pairs count toward the score)\n",
-                  analysis.functionClones,
-                  entryCount,
-                  formatFunctionClone);
+    text += formatSection("\nDuplicated functions (similarity, tokens; only "
+                          "same-file pairs count toward the score)\n",
+                          analysis.functionClones,
+                          entryCount,
+                          formatFunctionClone);
     return text;
 }
 
