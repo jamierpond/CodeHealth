@@ -1,5 +1,5 @@
 build*/
 .cache/
-.cpm-cache/
+.lockstep-cache/
 validation/private/
 __pycache__/

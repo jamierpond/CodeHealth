@@ -1,0 +1,215 @@
+{
+  "bootstrap": "cmake/lockstep.cmake",
+  "packages": [
+    {
+      "commit": "9f26b4a120ef7e97a5f6d430c1bd9010d23e3709",
+      "hash": "efc3c23665509c858b1cf7da9aaa41ba1423fb3c89b6381a98da6a2cbff3d06c",
+      "kind": "git",
+      "name": "EADataStructures",
+      "patches": [],
+      "requestedRef": "main",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/cpp_data_structures.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "1712e729e6c292f7e73abf817bf511f35dcffe4c",
+      "hash": "99fe605149acc78215762e7f398a78f27057873450a473c51a9e9b13ea9455e3",
+      "kind": "git",
+      "name": "ESIMD",
+      "patches": [],
+      "requestedRef": "main",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/ESIMD.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "e6fc9b9acd899fbafc9431637a98198d484f6fd5",
+      "hash": "3128bcecc5b61f1e9af0b788a09221c7fd90333ce3dafd38438a5431f603ed5a",
+      "kind": "git",
+      "name": "Miro",
+      "patches": [],
+      "requestedRef": "main",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/Miro.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "1b193ebc095338c967af3d658e74b0d6f870bf9b",
+      "hash": "20700974bc778c949a252560f33f72275cfcc58a68904d98fabcb4e47d44bdf9",
+      "kind": "git",
+      "name": "NanoTest",
+      "patches": [],
+      "requestedRef": "main",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/NanoTest.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "8cfcbfa7bdf2214c8939502a349b7d4fb4ac73bb",
+      "hash": "1fb0ce608fe41c1ed15b0800fce2932c7ce63c4ad08e09d53e32a3c265fb231c",
+      "kind": "git",
+      "name": "ResEmbed",
+      "patches": [],
+      "requestedRef": "main",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/ResEmbed.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "2d8aba1f1844deb7a4d8b981bbdc290d567b3fe9",
+      "hash": "d603102738a170ed62eb955322ae837909c087ec700fad85b614d81eef8be78d",
+      "kind": "git",
+      "name": "eacp",
+      "patches": [],
+      "requestedRef": "develop",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/eyalamirmusic/eacp.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "a8d28bd082bff18ffbe80996e922b012f915cf07",
+      "hash": "3f41212a26fa42c9a22279d049ebeff03f90a25786285da20ef7e753e4ed584d",
+      "kind": "git",
+      "name": "glslang",
+      "patches": [],
+      "requestedRef": "16.5.0",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/KhronosGroup/glslang.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "da6fe9beb4f7f67beb75914ca8e0d48ae48d6406",
+      "hash": "05adc9f311e335d0fc6de298b51766bf13eeb7f3cad3d4c2cb4e68508c9479e2",
+      "kind": "git",
+      "name": "tree_sitter",
+      "patches": [],
+      "requestedRef": "v0.25.10",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/tree-sitter/tree-sitter.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "f41e1a044c8a84ea9fa8577fdd2eab92ec96de02",
+      "hash": "aba98c89f6b7e5f21fa8a9af11908fe1745040fd21a856c2a056c596da63b658",
+      "kind": "git",
+      "name": "tree_sitter_cpp",
+      "patches": [],
+      "requestedRef": "v0.23.4",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/tree-sitter/tree-sitter-cpp.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "44c892e0be055ac465d5eeddae6d3e194424e7de",
+      "hash": "04330b01bb166b0c7a1c9f30eb7ce5f3bbf664e2f7773e952d5e252495622069",
+      "kind": "git",
+      "name": "tree_sitter_javascript",
+      "patches": [],
+      "requestedRef": "v0.25.0",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/tree-sitter/tree-sitter-javascript.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "eeef22e310ea16e2156a398190e7a326341950f8",
+      "hash": "ac9140bc0d68ad8e7992361f446a7d22d3ee162640e27a65db623daeb3a140f4",
+      "kind": "git",
+      "name": "tree_sitter_objcpp",
+      "patches": [],
+      "requestedRef": "eeef22e310ea16e2156a398190e7a326341950f8",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/VladimirMakaev/tree-sitter-objcpp.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "293fdc02038ee2bf0e2e206711b69c90ac0d413f",
+      "hash": "80661cc3845c79bb20e1f9eb6507f6b27e2142e60fc44327d57abee910b1b744",
+      "kind": "git",
+      "name": "tree_sitter_python",
+      "patches": [],
+      "requestedRef": "v0.25.0",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/tree-sitter/tree-sitter-python.git",
+      "usesGitLfs": false
+    },
+    {
+      "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
+      "hash": "e6cb8c04dcb31115967696f28af484e2943c53b24fca6232f21152db46a9a7da",
+      "kind": "git",
+      "name": "tree_sitter_typescript",
+      "patches": [],
+      "requestedRef": "v0.23.2",
+      "submoduleSelection": {
+        "isRecursive": true,
+        "isRestricted": false,
+        "paths": []
+      },
+      "submodules": [],
+      "url": "https://github.com/tree-sitter/tree-sitter-typescript.git",
+      "usesGitLfs": false
+    }
+  ],
+  "root": "3f6f4e56d9cc022f26e81febb67327da5955ef7156a006b870dd4fdb8f22d7b9",
+  "version": 1
+}

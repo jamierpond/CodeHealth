@@ -1,18 +1,18 @@
 # tree-sitter's core and its grammars, compiled as plain C from their sources:
 # no build system of theirs runs, and none pulls in anything else.
-CPMAddPackage(NAME tree_sitter GITHUB_REPOSITORY tree-sitter/tree-sitter
+lockstep_add_package(NAME tree_sitter GITHUB_REPOSITORY tree-sitter/tree-sitter
         GIT_TAG v0.25.10 DOWNLOAD_ONLY YES)
-CPMAddPackage(NAME tree_sitter_cpp GITHUB_REPOSITORY tree-sitter/tree-sitter-cpp
+lockstep_add_package(NAME tree_sitter_cpp GITHUB_REPOSITORY tree-sitter/tree-sitter-cpp
         GIT_TAG v0.23.4 DOWNLOAD_ONLY YES)
-CPMAddPackage(NAME tree_sitter_typescript
+lockstep_add_package(NAME tree_sitter_typescript
         GITHUB_REPOSITORY tree-sitter/tree-sitter-typescript
         GIT_TAG v0.23.2 DOWNLOAD_ONLY YES)
-CPMAddPackage(NAME tree_sitter_objcpp
+lockstep_add_package(NAME tree_sitter_objcpp
         GITHUB_REPOSITORY VladimirMakaev/tree-sitter-objcpp
         GIT_TAG eeef22e310ea16e2156a398190e7a326341950f8 DOWNLOAD_ONLY YES)
-CPMAddPackage(NAME tree_sitter_python GITHUB_REPOSITORY tree-sitter/tree-sitter-python
+lockstep_add_package(NAME tree_sitter_python GITHUB_REPOSITORY tree-sitter/tree-sitter-python
         GIT_TAG v0.25.0 DOWNLOAD_ONLY YES)
-CPMAddPackage(NAME tree_sitter_javascript
+lockstep_add_package(NAME tree_sitter_javascript
         GITHUB_REPOSITORY tree-sitter/tree-sitter-javascript
         GIT_TAG v0.25.0 DOWNLOAD_ONLY YES)
 
