@@ -13,7 +13,7 @@ inputs:
     default: score-drop
   version:
     description: codehealth release to run.
-    default: v0.1.0
+    default: v0.1.1
 
 runs:
   using: composite

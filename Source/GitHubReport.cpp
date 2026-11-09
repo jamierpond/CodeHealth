@@ -29,7 +29,7 @@ constexpr auto findingAdvice = std::array {
                    "nested blocks",
                    "extract each nested block into its own function"},
     FindingAdvice {"Complex Conditional",
-                   "conditions with two or more and/or operators",
+                   "condition(s) with two or more and/or operators",
                    "give each condition a name: a boolean or a small function"},
     FindingAdvice {
         "Excess Arguments", "arguments", "group related arguments into one type"},
@@ -283,6 +283,7 @@ std::string formatGitHubStepSummary(const DiffReport& report)
 }
 std::string formatGitHubFailure(std::string_view reason)
 {
-    return "::error title=codehealth::" + escapeText(reason, messageEscapes) + "\n";
+    return "::error title=Code Health gate::" + escapeText(reason, messageEscapes)
+           + "\n";
 }
 } // namespace CodeHealth
