@@ -148,22 +148,18 @@ Language makePythonLanguage()
             .extensions = {".py", ".pyi"},
             .getGrammar = tree_sitter_python,
             .functionNodeTypes = {"function_definition"},
+            // As CodeScene counts Python: each except and raise adds a path;
+            // with, `x if c else y`, a comprehension's if and match cases do not.
             .branchingNodeTypes = {"if_statement",
                                    "elif_clause",
                                    "for_statement",
                                    "while_statement",
                                    "except_clause",
-                                   "with_statement",
-                                   "conditional_expression",
-                                   "for_in_clause",
-                                   "if_clause",
-                                   "case_clause"},
-            .nestingNodeTypes = {"if_statement",
-                                 "for_statement",
-                                 "while_statement",
-                                 "try_statement",
-                                 "with_statement",
-                                 "match_statement"},
+                                   "raise_statement",
+                                   "for_in_clause"},
+            // CodeScene's Python nesting counts conditionals and loops, not
+            // try, with or match (scripts/calibration/python-probes.py).
+            .nestingNodeTypes = {"if_statement", "for_statement", "while_statement"},
             .logicalOperators = {"and", "or"},
             .logicalOperationNodeTypes = {"boolean_operator"},
             .primitiveTypeNames = {"int", "str", "float", "bool", "bytes"},
@@ -181,7 +177,11 @@ Language makePythonLanguage()
                                           "comment"},
             .implicitParameterNames = {"self", "cls"},
             .selfNames = {"self"},
-            .definitionWrapperNodeTypes = {"decorated_definition"}};
+            .definitionWrapperNodeTypes = {"decorated_definition"},
+            .statementBlockNodeTypes = {"block"},
+            .alternativeClauseNodeTypes = {"elif_clause", "else_clause"},
+            .hasDocstrings = true,
+            .measuresModuleCohesion = true};
 }
 
 const std::vector<Language>& getLanguages()

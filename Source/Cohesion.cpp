@@ -90,7 +90,97 @@ public:
         return classes;
     }
 
+    // LCOM4 over the whole module: its functions and every class's methods.
+    // Inside a class, methods relate as in measureClass; any function or method
+    // that names a top-level function or class relates to it.
+    int measureModuleCohesionGroups()
+    {
+        auto units = std::vector<Method> {};
+        auto classes = std::vector<ModuleClass> {};
+        auto firstUnitByTopLevelName = std::map<std::string, size_t> {};
+
+        forEachNamedChild(
+            root,
+            [&](TSNode child)
+            {
+                if (language.definitionWrapperNodeTypes.contains(getNodeType(child)))
+                    child = getField(child, "definition");
+
+                addModuleMember(child, units, classes, firstUnitByTopLevelName);
+            });
+
+        auto groups = DisjointGroups {units.size()};
+
+        for (auto& moduleClass: classes)
+            joinMethodsSharingMembers(
+                groups,
+                {units.begin() + moduleClass.firstUnit,
+                 units.begin() + moduleClass.firstUnit + moduleClass.methodCount},
+                moduleClass.firstUnit,
+                moduleClass.fields);
+
+        for (auto index = size_t {0}; index < units.size(); ++index)
+            for (auto& reference: units[index].references)
+                if (auto found = firstUnitByTopLevelName.find(reference);
+                    found != firstUnitByTopLevelName.end())
+                    groups.join(index, found->second);
+
+        return groups.countGroups();
+    }
+
 private:
+    struct ModuleClass
+    {
+        size_t firstUnit = 0;
+        size_t methodCount = 0;
+        std::set<std::string> fields;
+    };
+
+    void addModuleMember(TSNode member,
+                         std::vector<Method>& units,
+                         std::vector<ModuleClass>& classes,
+                         std::map<std::string, size_t>& firstUnitByTopLevelName)
+    {
+        auto type = getNodeType(member);
+
+        if (language.functionNodeTypes.contains(type))
+        {
+            firstUnitByTopLevelName.emplace(findMemberName(member), units.size());
+            units.push_back(describeMethod(member, findMemberName(member)));
+            return;
+        }
+
+        if (!language.classNodeTypes.contains(type) || !hasField(member, "body"))
+            return;
+
+        auto moduleClass = ModuleClass {.firstUnit = units.size()};
+
+        forEachNamedChild(
+            getField(member, "body"),
+            [&](TSNode method)
+            {
+                if (language.definitionWrapperNodeTypes.contains(
+                        getNodeType(method)))
+                    method = getField(method, "definition");
+
+                if (!language.functionNodeTypes.contains(getNodeType(method)))
+                    return;
+
+                units.push_back(describeMethod(method, findMemberName(method)));
+                moduleClass.fields.insert(units.back().selfAttributes.begin(),
+                                          units.back().selfAttributes.end());
+            });
+
+        moduleClass.methodCount = units.size() - moduleClass.firstUnit;
+
+        if (moduleClass.methodCount > 0)
+            firstUnitByTopLevelName.emplace(
+                getNodeText(getField(member, "name"), source),
+                moduleClass.firstUnit);
+
+        classes.push_back(std::move(moduleClass));
+    }
+
     ClassMetrics measureClass(TSNode classNode)
     {
         auto name = hasField(classNode, "name")
@@ -185,7 +275,7 @@ private:
                      if (language.referenceNodeTypes.contains(getNodeType(node)))
                          method.references.insert(getNodeText(node, source));
 
-                     if (isSelfAttribute(node))
+                     if (isSelfAttribute(node) && !isCalled(node))
                          method.selfAttributes.insert(
                              getNodeText(getField(node, "attribute"), source));
 
@@ -212,6 +302,15 @@ private:
             describeMethod(node, getNodeText(getField(qualified, "name"), source)));
     }
 
+    // `self.assertEqual(...)` calls a method, maybe an inherited one; it is not
+    // a field the caller shares with the methods that use it.
+    static bool isCalled(TSNode node)
+    {
+        auto parent = ts_node_parent(node);
+        return getNodeType(parent) == "call"
+               && ts_node_eq(getField(parent, "function"), node);
+    }
+
     bool isSelfAttribute(TSNode node) const
     {
         return getNodeType(node) == "attribute" && hasField(node, "object")
@@ -234,10 +333,21 @@ private:
                                    const std::set<std::string>& fields)
     {
         auto groups = DisjointGroups {methods.size()};
+        joinMethodsSharingMembers(groups, methods, 0, fields);
+        return groups.countGroups();
+    }
+
+    // Methods are related when they use the same field or one calls the other;
+    // firstIndex places these methods among everything groups holds.
+    static void joinMethodsSharingMembers(DisjointGroups& groups,
+                                          const std::vector<Method>& methods,
+                                          size_t firstIndex,
+                                          const std::set<std::string>& fields)
+    {
         auto firstUserOfName = std::map<std::string, size_t> {};
 
         for (auto index = size_t {0}; index < methods.size(); ++index)
-            firstUserOfName.emplace(methods[index].name, index);
+            firstUserOfName.emplace(methods[index].name, firstIndex + index);
 
         for (auto index = size_t {0}; index < methods.size(); ++index)
             for (auto& reference: methods[index].references)
@@ -248,13 +358,12 @@ private:
                 if (!isMember)
                     continue;
 
-                auto [user, isFirst] = firstUserOfName.emplace(reference, index);
+                auto [user, isFirst] =
+                    firstUserOfName.emplace(reference, firstIndex + index);
 
                 if (!isFirst)
-                    groups.join(index, user->second);
+                    groups.join(firstIndex + index, user->second);
             }
-
-        return groups.countGroups();
     }
 
     TSNode root;
@@ -269,5 +378,12 @@ std::vector<ClassMetrics> measureClassCohesion(const TSNode& root,
                                                const Language& language)
 {
     return CohesionMeasurer {root, source, language}.measure();
+}
+
+int measureModuleCohesionGroups(const TSNode& root,
+                                std::string_view source,
+                                const Language& language)
+{
+    return CohesionMeasurer {root, source, language}.measureModuleCohesionGroups();
 }
 } // namespace CodeHealth

@@ -214,7 +214,7 @@ private:
                  true,
                  [&](TSNode node, bool) -> std::optional<bool>
                  {
-                     if (getNodeType(node) == "comment")
+                     if (getNodeType(node) == "comment" || isDocstring(node))
                          return std::nullopt;
 
                      if (ts_node_child_count(node) > 0)
@@ -230,6 +230,19 @@ private:
                                        ts_node_start_byte(node)});
                      return std::nullopt;
                  });
+    }
+
+    // A string alone as the first statement of a module, class or function body.
+    bool isDocstring(TSNode node) const
+    {
+        if (!language.hasDocstrings || getNodeType(node) != "expression_statement")
+            return false;
+
+        auto onlyChild = ts_node_named_child(node, 0);
+        auto parent = ts_node_parent(node);
+        return ts_node_named_child_count(node) == 1
+               && getNodeType(onlyChild) == "string"
+               && ts_node_eq(ts_node_named_child(parent, 0), node);
     }
 
     // Identifiers and literals each fold into one kind, past every grammar symbol.
@@ -416,6 +429,8 @@ private:
 
         auto body = findBody(function);
         bumpyStatements.clear();
+        bumpCountFromRuns = 0;
+        isInsideBump = false;
 
         if (!ts_node_is_null(body))
             forEachChild(
@@ -428,7 +443,9 @@ private:
                              { return visit(node, position, metrics); });
                 });
 
-        metrics.bumpCount = static_cast<int>(bumpyStatements.size());
+        closeBump();
+        metrics.bumpCount =
+            static_cast<int>(bumpyStatements.size()) + bumpCountFromRuns;
         return metrics;
     }
 
@@ -467,11 +484,47 @@ private:
         metrics.maximumNestingDepth =
             std::max(metrics.maximumNestingDepth, position.depth);
 
-        if (position.depth >= bumpNestingDepth)
-            bumpyStatements.insert(ts_node_start_byte(position.topLevelStatement));
-
+        recordBump(node, position);
         position.parent = node;
         return position;
+    }
+
+    void recordBump(TSNode node, const WalkPosition& position)
+    {
+        if (language.statementBlockNodeTypes.empty())
+        {
+            if (position.depth >= bumpNestingDepth)
+                bumpyStatements.insert(
+                    ts_node_start_byte(position.topLevelStatement));
+
+            return;
+        }
+
+        if (position.depth >= bumpNestingDepth)
+            isInsideBump = true;
+        else if (endsBump(node, position))
+            closeBump();
+    }
+
+    // A top-level statement, a plain one inside a single conditional or loop, or
+    // the next branch (elif, else) of a shallow conditional.
+    bool endsBump(TSNode node, const WalkPosition& position) const
+    {
+        if (language.alternativeClauseNodeTypes.contains(getNodeType(node)))
+            return true;
+
+        if (!ts_node_is_named(node)
+            || !language.statementBlockNodeTypes.contains(
+                getNodeType(position.parent)))
+            return false;
+
+        return !isNesting(node, position.parent) || position.depth == 1;
+    }
+
+    void closeBump()
+    {
+        bumpCountFromRuns += isInsideBump ? 1 : 0;
+        isInsideBump = false;
     }
 
     bool isNesting(TSNode node, TSNode parent) const
@@ -491,6 +544,8 @@ private:
     const Language& language;
     std::string_view source;
     std::set<uint32_t> bumpyStatements;
+    int bumpCountFromRuns = 0;
+    bool isInsideBump = false;
     std::vector<bool> codeRows;
 
 public:
@@ -569,6 +624,10 @@ MeasuredSource SourceParser::measure(std::string_view source,
                                 .linesOfCode = measurer.countLinesOfCode()};
     measurer.collectFunctions(root, metrics.functions, metrics.dependencies);
     metrics.classes = measureClassCohesion(root, source, language);
+
+    if (language.measuresModuleCohesion)
+        metrics.moduleCohesionGroups =
+            measureModuleCohesionGroups(root, source, language);
     auto functionTokens = sliceFunctionTokens(metrics.functions, measurer);
     return {.metrics = std::move(metrics),
             .functionTokens = std::move(functionTokens)};

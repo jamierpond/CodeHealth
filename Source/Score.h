@@ -40,7 +40,7 @@ struct FileHealth
 
 // One biomarker's tuning: a finding at or above threshold costs
 // weight * (1 + ln(value / threshold)), and a biomarker's findings together
-// saturate towards categoryCap.
+// saturate towards categoryCap. A rule with onlyForLanguages applies to those alone.
 struct BiomarkerRule
 {
     std::string name;
@@ -48,10 +48,27 @@ struct BiomarkerRule
     double weight = 0.0;
     double categoryCap = 0.0;
     std::map<std::string, double> thresholdByLanguage {};
+    std::map<std::string, double> categoryCapByLanguage {};
+    std::map<std::string, double> weightByLanguage {};
+    // Another measure under this rule's name, for a language that counts it differently.
+    std::map<std::string, std::string> measureByLanguage {};
+    // Languages whose findings cost weight * value / threshold, growing with the
+    // value instead of with its logarithm.
+    std::vector<std::string> linearPenaltyLanguages {};
+    std::vector<std::string> onlyForLanguages {};
 
-    double getThresholdFor(const std::string& language) const;
+    bool isAppliedTo(const std::string& language) const;
 
-    MIRO_REFLECT(name, threshold, weight, categoryCap, thresholdByLanguage)
+    MIRO_REFLECT(name,
+                 threshold,
+                 weight,
+                 categoryCap,
+                 thresholdByLanguage,
+                 categoryCapByLanguage,
+                 weightByLanguage,
+                 measureByLanguage,
+                 linearPenaltyLanguages,
+                 onlyForLanguages)
 };
 
 struct ScoringRules
@@ -60,6 +77,20 @@ struct ScoringRules
 
     MIRO_REFLECT(biomarkers)
 };
+
+// A rule with one language's overrides applied.
+struct LanguageRule
+{
+    std::string name;
+    std::string measureName;
+    double threshold = 0.0;
+    double weight = 0.0;
+    double categoryCap = 0.0;
+    bool hasLinearPenalty = false;
+};
+
+LanguageRule resolveRuleForLanguage(const BiomarkerRule& rule,
+                                    const std::string& language);
 
 const ScoringRules& getDefaultScoringRules();
 

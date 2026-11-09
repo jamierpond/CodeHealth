@@ -51,14 +51,13 @@ auto tPythonFunctions = test(
     check(findFunction(file, "fetch.retry").cyclomaticComplexity == 2);
 };
 
-auto tPythonComplexity = test(
-    "PythonMetrics/branches, comprehensions, boolean operators and conditional expressions") =
-    []
+auto tPythonComplexity =
+    test("PythonMetrics/branches, comprehension loops and boolean operators") = []
 {
     auto deposit =
         findFunction(measureFixture(pythonFixture, "account.py"), "deposit");
-    // if, and, or, elif, for, while, comprehension for and if, conditional expression
-    check(deposit.cyclomaticComplexity == 10);
+    // if, and, or, elif, for, while, comprehension for
+    check(deposit.cyclomaticComplexity == 8);
     check(deposit.complexConditionalCount == 1);
     check(deposit.maximumNestingDepth == 3);
 };

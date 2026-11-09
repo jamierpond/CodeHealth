@@ -29,4 +29,10 @@ struct ClassMetrics
 std::vector<ClassMetrics> measureClassCohesion(const TSNode& root,
                                                std::string_view source,
                                                const Language& language);
+
+// LCOM4 of a whole module (Python): how many unrelated groups its top-level
+// functions and its classes' methods fall into.
+int measureModuleCohesionGroups(const TSNode& root,
+                                std::string_view source,
+                                const Language& language);
 } // namespace CodeHealth
