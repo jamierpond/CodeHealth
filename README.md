@@ -34,6 +34,34 @@ codehealth path/to/repo --check 9         # exit 1 if any file scores below 9
 minimum to stderr, and exits 1 if there are any. `scripts/self-check.sh` runs it
 on this repository's working tree at 9, and CI fails below that.
 
+### One section of the report
+
+```bash
+codehealth health        # worst files and their findings
+codehealth hotspots      # commits x complexity
+codehealth coupling      # files that change together
+codehealth duplicates    # numbered duplicated functions
+```
+
+Each prints only that section, from the same analysis as the full report, and
+takes `--repository`, `--ref`, `--since`, `--jobs`, `--top` and `--rules`. Any
+unambiguous prefix works (`dup`, `dupl`, `duplicates`); an ambiguous one (`d`,
+`h`) lists what it could mean and exits 1.
+
+### Duplicated functions
+
+The summary numbers each duplicated pair 1, 2, 3... from the largest down.
+
+```bash
+codehealth dup 1                                        # pair 1, in the current repository
+codehealth dup --repository path/to/repo --ref main 2
+```
+
+prints the two functions line by line. The header names function `A` and
+function `B`; shared lines have a blank prefix, lines only in A start with `A`
+and lines only in B start with `B`. Lines that differ only in indentation count
+as shared. When stdout is a terminal, A's lines are blue and B's are orange.
+
 ### Changes since a base
 
 ```bash

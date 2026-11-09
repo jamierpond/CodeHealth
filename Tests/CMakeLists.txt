@@ -17,6 +17,8 @@ add_executable(CodeHealthTests
         GitRecordsTests.cpp
         DiffTests.cpp
         DuplicationTests.cpp
+        DuplicateViewTests.cpp
+        CommandNamesTests.cpp
         CohesionTests.cpp
         PythonMetricsTests.cpp
         PythonRulesTests.cpp)

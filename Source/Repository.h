@@ -54,6 +54,13 @@ struct RepositoryMeasurement
 
 RepositoryMeasurement measureRepository(const AnalysisOptions& options);
 
+// Largest first; equal sizes by path then line of A, then of B.
+std::vector<FunctionClone> keepLargestClones(std::vector<FunctionClone> clones);
+
+// The duplicated pairs the summary lists, in its order.
+std::vector<FunctionClone>
+    findReportedFunctionClones(const AnalysisOptions& options);
+
 std::vector<FileHealth> assessFiles(const std::vector<FileMetrics>& metrics,
                                     const ScoringRules& rules);
 

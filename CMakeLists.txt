@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(CodeHealth LANGUAGES C CXX)
+project(CodeHealth VERSION 0.1.0 LANGUAGES C CXX)
 
 if (APPLE)
     enable_language(OBJCXX)
@@ -32,6 +32,8 @@ add_library(CodeHealthCore STATIC
         Source/Coupling.cpp
         Source/Diff.cpp
         Source/Duplication.cpp
+        Source/DuplicateView.cpp
+        Source/CommandNames.cpp
         Source/FunctionClones.cpp
         Source/History.cpp
         Source/GitRecords.cpp
@@ -42,6 +44,7 @@ target_link_libraries(CodeHealthCore PUBLIC eacp-core PRIVATE tree-sitter-gramma
 
 add_executable(codehealth Source/Main.cpp)
 target_link_libraries(codehealth PRIVATE CodeHealthCore)
+target_compile_definitions(codehealth PRIVATE CODEHEALTH_VERSION="${PROJECT_VERSION}")
 
 if (PROJECT_IS_TOP_LEVEL)
     enable_testing()

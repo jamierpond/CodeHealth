@@ -14,6 +14,7 @@
 #include <exception>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 
 namespace CodeHealth
 {
@@ -361,15 +362,36 @@ std::vector<FileHealth> assessFiles(const std::vector<FileMetrics>& metrics,
     return files;
 }
 
+bool isListedBefore(const FunctionClone& first, const FunctionClone& second)
+{
+    auto measureSize = [](const FunctionClone& clone)
+    { return clone.similarity * clone.tokenCount; };
+    auto makePlacement = [](const FunctionClone& clone)
+    {
+        return std::tie(clone.firstPath,
+                        clone.firstStartLine,
+                        clone.secondPath,
+                        clone.secondStartLine);
+    };
+
+    if (measureSize(first) != measureSize(second))
+        return measureSize(first) > measureSize(second);
+
+    return makePlacement(first) < makePlacement(second);
+}
+
 // Every clone counts toward its files' scores; the report lists the largest.
 std::vector<FunctionClone> keepLargestClones(std::vector<FunctionClone> clones)
 {
     constexpr auto reportedCloneLimit = size_t {200};
-    auto size = [](const FunctionClone& clone)
-    { return clone.similarity * clone.tokenCount; };
-    std::ranges::stable_sort(clones, std::ranges::greater {}, size);
+    std::ranges::sort(clones, isListedBefore);
     clones.resize(std::min(clones.size(), reportedCloneLimit));
     return clones;
+}
+
+std::vector<FunctionClone> findReportedFunctionClones(const AnalysisOptions& options)
+{
+    return keepLargestClones(measureRepository(options).functionClones);
 }
 
 // History is read on its own thread while the workers parse.
