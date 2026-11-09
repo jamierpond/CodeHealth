@@ -1,6 +1,7 @@
 #include "CommandNames.h"
 
 #include <algorithm>
+#include <iterator>
 
 namespace CodeHealth
 {
