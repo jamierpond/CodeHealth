@@ -24,5 +24,5 @@ add_executable(CodeHealthTests
         PythonRulesTests.cpp
         GitHubReportTests.cpp)
 target_link_libraries(CodeHealthTests PRIVATE NanoTest NanoTestMain CodeHealthCore)
-target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_EACP_SOURCE_DIR="${eacp_SOURCE_DIR}")
+target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_REPOSITORY_DIR="${PROJECT_SOURCE_DIR}")
 nano_discover_tests(CodeHealthTests)

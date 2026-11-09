@@ -54,9 +54,9 @@ auto tParallelFixture = test(
           == analyseAsJson(repository.getPath(), manyJobs));
 };
 
-auto tParallelEacp =
-    test("Parallel/output is identical with one job and with many, on eacp") = []
+auto tParallelThisRepository =
+    test("Parallel/output is identical with one job and with many, on this repository") = []
 {
-    auto repository = eacp::FilePath {CODEHEALTH_EACP_SOURCE_DIR};
+    auto repository = eacp::FilePath {CODEHEALTH_REPOSITORY_DIR};
     check(analyseAsJson(repository, 1) == analyseAsJson(repository, manyJobs));
 };

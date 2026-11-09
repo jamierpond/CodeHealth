@@ -57,7 +57,11 @@ Without the action, after installing:
 ## Build
 
 Needs CMake 3.25+, a C++20 compiler and git on `PATH`. Dependencies (eacp,
-tree-sitter and its grammars, NanoTest) are fetched by CPM. On Linux, eacp's
+tree-sitter and its grammars, NanoTest) are fetched by
+[lockstep](https://github.com/jamierpond/lockstep) at the commits pinned in
+`lockstep.lock`; eacp tracks `develop` but stays at the locked commit until
+`cmake -B build -DLOCKSTEP_MODE=update` or `lockstep update eacp`. To build
+against a local checkout, pass `-DLOCKSTEP_<Name>_SOURCE=<path>`. On Linux, eacp's
 configure step needs libcurl headers (`libcurl4-gnutls-dev`), though nothing here
 links libcurl.
 
