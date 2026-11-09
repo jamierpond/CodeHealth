@@ -15,7 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(EACP_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
 set(EACP_BUILD_WEBVIEW OFF CACHE BOOL "" FORCE)
 
-CPMAddPackage(
+lockstep_add_package(
         NAME eacp
         GITHUB_REPOSITORY eyalamirmusic/eacp
         GIT_TAG develop

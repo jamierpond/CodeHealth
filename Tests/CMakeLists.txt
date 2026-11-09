@@ -1,5 +1,5 @@
 if (NOT TARGET NanoTest)
-    CPMAddPackage(
+    lockstep_add_package(
             NAME NanoTest
             GITHUB_REPOSITORY eyalamirmusic/NanoTest
             GIT_TAG main
