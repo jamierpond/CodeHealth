@@ -11,6 +11,8 @@ endif ()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# No source this project compiles uses C++20 modules, so scanning each one for them is wasted work.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 set(EACP_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
 set(EACP_BUILD_WEBVIEW OFF CACHE BOOL "" FORCE)
