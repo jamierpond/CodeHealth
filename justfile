@@ -1,30 +1,29 @@
+# CodeHealth dev commands. Recipes are a line or two of cmake; anything longer is
+# a script in scripts/.
+
 set windows-shell := ["cmd.exe", "/c"]
 
-binary := if os() == "windows" { "build\\codehealth.exe" } else { "build/codehealth" }
+build_dir := "build"
+build_type := "Release"
+binary := if os() == "windows" { build_dir + "\\codehealth.exe" } else { build_dir + "/codehealth" }
+
+# Ninja drives cl directly on Windows, so it needs the Visual Studio environment.
+msvc := if os() == "windows" { "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/with-msvc.ps1" } else { "" }
 
 # Show the recipe list by default.
 default:
     @just --list
 
-[doc('Configure and build codehealth (Release)')]
-[unix]
-build:
-    scripts/build.sh
+[doc('Configure + build codehealth; extra arguments go to the configure step')]
+build *cmake_args:
+    {{msvc}} cmake -S . -B {{build_dir}} -G Ninja -DCMAKE_BUILD_TYPE={{build_type}} {{cmake_args}}
+    {{msvc}} cmake --build {{build_dir}} --target codehealth
 
-[doc('Configure and build codehealth (Release)')]
-[windows]
-build:
-    scripts\build-windows.cmd
-
-[doc('Build, run the tests, then the self-check')]
-[unix]
-test:
-    scripts/test.sh
-
-[doc('Build, run the tests, then the self-check')]
-[windows]
-test:
-    scripts\test-windows.cmd
+[doc('Build codehealth and its tests, run every test, then the self-check')]
+test: build
+    {{msvc}} cmake --build {{build_dir}} --target CodeHealthTests
+    ctest --test-dir {{build_dir}} --output-on-failure
+    node scripts/self-check.mjs
 
 [doc('Build, then run codehealth (default: this repository)')]
 run *args='.': build

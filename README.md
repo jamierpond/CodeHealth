@@ -56,8 +56,8 @@ Without the action, after installing:
 
 ## Build
 
-Needs CMake 3.31+, a C++20 compiler and git on `PATH`. Dependencies (eacp,
-tree-sitter and its grammars, NanoTest) are fetched by
+Needs CMake 3.31+, Ninja, a C++20 compiler, git and Node (for the self-check) on
+`PATH`. Dependencies (eacp, tree-sitter and its grammars, NanoTest) are fetched by
 [lockstep](https://github.com/jamierpond/lockstep) at the commits pinned in
 `lockstep.lock`; eacp tracks `develop` but stays at the locked commit until
 `cmake -B build -DLOCKSTEP_MODE=update` or `lockstep update eacp`. To build
@@ -72,7 +72,8 @@ just run ~/some/repo  # build, then run codehealth (default: this repository)
 just install          # build, then install to ~/.local/bin/codehealth
 ```
 
-The recipes call the scripts in `scripts/`; on Windows they use MSVC.
+On Windows the recipes bring in MSVC from the newest Visual Studio install
+through `scripts/with-msvc.ps1`.
 
 ## Usage
 
