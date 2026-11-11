@@ -32,7 +32,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .lockstep-cache
-          key: lockstep-${{ matrix.os }}-${{ hashFiles('lockstep.lock') }}
+          key: lockstep-${{ matrix.os }}-${{ hashFiles('lockstep.lock', 'cmake/lockstep.cmake') }}
 
       # setup-just has no Windows ARM64 build; that lane calls the script just would.
       - uses: extractions/setup-just@v2
