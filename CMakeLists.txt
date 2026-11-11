@@ -24,7 +24,6 @@ lockstep_add_package(
         GITHUB_REPOSITORY eyalamirmusic/eacp
         GIT_TAG develop
         SYSTEM YES
-        EXCLUDE_FROM_ALL YES
         OPTIONS
             "EACP_BUILD_GRAPHICS OFF")
 
