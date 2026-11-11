@@ -29,7 +29,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: lockstep-cache
         with:
           path: .lockstep-cache
           key: lockstep-${{ matrix.os }}-${{ hashFiles('lockstep.lock', 'cmake/lockstep.cmake') }}
@@ -50,6 +51,14 @@ jobs:
         if: matrix.os == 'windows-11-arm'
         shell: cmd
         run: scripts\test-windows.cmd
+
+      # Saved even when a test fails, so the next run still finds the packages
+      # and libraries this one built.
+      - uses: actions/cache/save@v4
+        if: always() && steps.lockstep-cache.outputs.cache-hit != 'true'
+        with:
+          path: .lockstep-cache
+          key: ${{ steps.lockstep-cache.outputs.cache-primary-key }}
 
   codehealth:
     name: Code Health of the changes
