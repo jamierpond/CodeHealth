@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 
 # The oldest macOS supported, as in eacp and the other pond apps: one value lets them share cached dependency libraries.
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")

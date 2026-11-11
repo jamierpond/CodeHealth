@@ -56,7 +56,7 @@ Without the action, after installing:
 
 ## Build
 
-Needs CMake 3.25+, a C++20 compiler and git on `PATH`. Dependencies (eacp,
+Needs CMake 3.31+, a C++20 compiler and git on `PATH`. Dependencies (eacp,
 tree-sitter and its grammars, NanoTest) are fetched by
 [lockstep](https://github.com/jamierpond/lockstep) at the commits pinned in
 `lockstep.lock`; eacp tracks `develop` but stays at the locked commit until
