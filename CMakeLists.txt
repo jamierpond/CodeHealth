@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
 
+# The oldest macOS supported, as in eacp and the other pond apps: one value lets them share cached dependency libraries.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
+
+set(LOCKSTEP_LIBRARY_CACHE ON CACHE BOOL
+        "Link each locked package's static libraries from lockstep's shared library cache when an earlier build compiled them from the same inputs, instead of compiling them again")
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/cmake/lockstep.cmake)
 
 project(CodeHealth VERSION 0.1.1 LANGUAGES C CXX)
@@ -14,13 +19,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # No source this project compiles uses C++20 modules, so scanning each one for them is wasted work.
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
-set(EACP_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
-set(EACP_BUILD_WEBVIEW OFF CACHE BOOL "" FORCE)
-
 lockstep_add_package(
         NAME eacp
         GITHUB_REPOSITORY eyalamirmusic/eacp
         GIT_TAG develop
+        OPTIONS "EACP_BUILD_GRAPHICS OFF"
         SYSTEM YES
         EXCLUDE_FROM_ALL YES)
 
