@@ -23,9 +23,10 @@ lockstep_add_package(
         NAME eacp
         GITHUB_REPOSITORY eyalamirmusic/eacp
         GIT_TAG develop
-        OPTIONS "EACP_BUILD_GRAPHICS OFF"
         SYSTEM YES
-        EXCLUDE_FROM_ALL YES)
+        EXCLUDE_FROM_ALL YES
+        OPTIONS
+            "EACP_BUILD_GRAPHICS OFF")
 
 include(cmake/TreeSitter.cmake)
 
