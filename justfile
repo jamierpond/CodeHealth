@@ -39,3 +39,12 @@ install: build
 install: build
     if not exist "%USERPROFILE%\.local\bin" mkdir "%USERPROFILE%\.local\bin"
     copy /y build\codehealth.exe "%USERPROFILE%\.local\bin\codehealth.exe"
+
+[doc('clang-format every tracked source in place')]
+[unix]
+format:
+    git ls-files '*.h' '*.cpp' '*.mm' | xargs clang-format -i
+
+[doc('Delete the build directory')]
+clean:
+    cmake -E rm -rf {{build_dir}}
