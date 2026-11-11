@@ -85,7 +85,7 @@ codehealth path/to/repo --check 9         # exit 1 if any file scores below 9
 ```
 
 `--check` scores the files without reading history, prints each file under the
-minimum to stderr, and exits 1 if there are any. `scripts/self-check.sh` runs it
+minimum to stderr, and exits 1 if there are any. `scripts/self-check.mjs` runs it
 on this repository's working tree at 9, and CI fails below that.
 
 ### One section of the report

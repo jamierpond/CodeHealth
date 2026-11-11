@@ -5,4 +5,4 @@ cd "$(dirname "$0")/.."
 scripts/build.sh
 cmake --build build --config Release --parallel --target CodeHealthTests
 ctest --test-dir build --build-config Release --output-on-failure
-scripts/self-check.sh
+node scripts/self-check.mjs
