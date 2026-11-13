@@ -27,6 +27,9 @@ lockstep_add_package(
 
 include(cmake/TreeSitter.cmake)
 
+# Set after the packages, so only this project's own targets build with -Werror.
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+
 add_library(CodeHealthCore STATIC
         Source/Languages.cpp
         Source/Metrics.cpp
