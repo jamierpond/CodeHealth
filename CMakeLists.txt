@@ -17,12 +17,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # No source this project compiles uses C++20 modules, so scanning each one for them is wasted work.
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
-# eacp jp/develop: develop plus Jamie's unmerged eacp pull requests, one commit each,
-# so every pond app builds against the same eacp. CodeHealth needs none of them yet.
 lockstep_add_package(
         NAME eacp
         GITHUB_REPOSITORY eyalamirmusic/eacp
-        GIT_TAG jp/develop
+        GIT_TAG develop
         SYSTEM YES
         OPTIONS
             "EACP_BUILD_GRAPHICS OFF")
