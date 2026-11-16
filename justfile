@@ -54,3 +54,8 @@ format:
 [doc('Delete the build directory')]
 clean:
     cmake -E rm -rf {{build_dir}}
+
+[doc('Move branch-pinned dependencies to their branch heads and rewrite lockstep.lock')]
+update-deps:
+    {{msvc}} cmake -S . -B {{build_dir}} -G Ninja -DLOCKSTEP_MODE=update
+    {{msvc}} cmake -S . -B {{build_dir}} -G Ninja -DLOCKSTEP_MODE=locked
