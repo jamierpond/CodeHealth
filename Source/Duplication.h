@@ -62,18 +62,6 @@ std::size_t
     measureLongestCommonSubsequence(const std::vector<std::uint32_t>& first,
                                     const std::vector<std::uint32_t>& second);
 
-// Pairs of functions with nearly the same tokens: candidates from rare shared
-// token trigrams (SourcererCC, Sajnani et al. 2016), confirmed by the longest
-// common subsequence of their token streams (NiCad, Roy and Cordy 2008).
-std::vector<FunctionClone> findFunctionClones(
-    const std::vector<std::vector<FunctionTokens>>& functionsPerFile,
-    const std::vector<std::string>& paths,
-    int jobCount);
-
-std::size_t
-    measureLongestCommonSubsequence(const std::vector<std::uint32_t>& first,
-                                    const std::vector<std::uint32_t>& second);
-
 // Lines inside a clone of another function in the same file, each counted
 // once, per path. CodeScene reviews one file at a time, so its duplication is
 // within a file, and these are what count toward the score.

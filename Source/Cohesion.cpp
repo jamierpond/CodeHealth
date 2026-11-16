@@ -112,12 +112,16 @@ public:
         auto groups = DisjointGroups {units.size()};
 
         for (auto& moduleClass: classes)
-            joinMethodsSharingMembers(
-                groups,
-                {units.begin() + moduleClass.firstUnit,
-                 units.begin() + moduleClass.firstUnit + moduleClass.methodCount},
-                moduleClass.firstUnit,
-                moduleClass.fields);
+        {
+            auto firstUnitOffset =
+                static_cast<std::ptrdiff_t>(moduleClass.firstUnit);
+            auto methodCount = static_cast<std::ptrdiff_t>(moduleClass.methodCount);
+            auto firstMethod = units.begin() + firstUnitOffset;
+            joinMethodsSharingMembers(groups,
+                                      {firstMethod, firstMethod + methodCount},
+                                      moduleClass.firstUnit,
+                                      moduleClass.fields);
+        }
 
         for (auto index = size_t {0}; index < units.size(); ++index)
             for (auto& reference: units[index].references)

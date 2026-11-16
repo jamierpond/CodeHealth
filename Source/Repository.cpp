@@ -309,7 +309,12 @@ std::vector<std::string> readFilesAtRef(const eacp::FilePath& repository,
     auto requests = std::string {};
 
     for (auto& path: paths)
-        requests += ref + ":" + path + "\n";
+    {
+        requests += ref;
+        requests += ':';
+        requests += path;
+        requests += '\n';
+    }
 
     auto format = GitRecords::makeFormat<GitRecords::BlobHeader>(
         std::string(1, GitRecords::fieldSeparator));

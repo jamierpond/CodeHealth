@@ -116,7 +116,8 @@ FileMetrics makeModule(std::string path, int linesOfCode)
     return file;
 }
 
-FileMetrics makeModuleWithFunctions(std::string path, int count, std::string prefix)
+FileMetrics
+    makeModuleWithFunctions(std::string path, int count, const std::string& prefix)
 {
     auto file = makeModule(std::move(path), largeModuleLines);
 

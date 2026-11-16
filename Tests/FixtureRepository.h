@@ -22,7 +22,7 @@ public:
 
     const eacp::FilePath& getPath() const { return directory.path(); }
 
-    void stageFile(const std::string& path, const std::string& content)
+    void stageFile(const std::string& path, const std::string& content) const
     {
         auto hash = eacp::Strings::trim(
             runGit(getPath(), {"hash-object", "-w", "--stdin"}, content));
@@ -35,26 +35,26 @@ public:
                 "100644," + hash + "," + path});
     }
 
-    void unstageFile(const std::string& path)
+    void unstageFile(const std::string& path) const
     {
         runGit(getPath(), {"update-index", "--force-remove", path});
     }
 
-    void writeWorkingFile(const std::string& path, const std::string& content)
+    void writeWorkingFile(const std::string& path, const std::string& content) const
     {
         eacp::Files::writeFile(getPath() / path, content);
     }
 
-    void stageWorkingTree() { runGit(getPath(), {"add", "-A"}); }
+    void stageWorkingTree() const { runGit(getPath(), {"add", "-A"}); }
 
-    void checkOutHead() { runGit(getPath(), {"reset", "-q", "--hard"}); }
+    void checkOutHead() const { runGit(getPath(), {"reset", "-q", "--hard"}); }
 
-    void createBranch(const std::string& name)
+    void createBranch(const std::string& name) const
     {
         runGit(getPath(), {"branch", name});
     }
 
-    void commit(const std::string& authorName, long long authorTime)
+    void commit(const std::string& authorName, long long authorTime) const
     {
         runGit(getPath(),
                {"-c",
