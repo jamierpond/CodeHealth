@@ -83,3 +83,10 @@ jobs:
       - name: Run codehealth from PATH
         shell: bash
         run: codehealth --version
+      - uses: ./
+        with:
+          version: v0.1.0
+          arguments: --version
+      - name: The pinned release is first on PATH
+        shell: bash
+        run: codehealth --version | tr -d "\r" | grep -Fx "codehealth 0.1.0"

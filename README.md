@@ -49,7 +49,9 @@ summary lists each changed file's score before and after. Inputs:
 - `fail-on`: `score-drop` (default: a changed file's score fell or it gained a
   finding), `new-finding`, or `never`.
 - `base`: the commit to compare with (default: the pull request's base).
-- `version`: the codehealth release to run.
+- `version`: the codehealth release to run (default: `latest`, the newest
+  release, looked up on every run). Pin a tag such as `v0.1.1` for reproducible
+  runs.
 - `arguments`: run `codehealth <arguments>` instead of the diff check; the step
   exits with codehealth's exit code, `base` and `fail-on` are ignored, and no
   history is fetched. Split on whitespace; quotes are not interpreted.

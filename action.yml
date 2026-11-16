@@ -12,8 +12,8 @@ inputs:
     description: "score-drop (a changed file's score fell or it gained a finding), new-finding, or never."
     default: score-drop
   version:
-    description: codehealth release to run.
-    default: v0.1.1
+    description: "codehealth release to run: a tag such as v0.1.1, or latest (the newest release, looked up on every run). Pin a tag for reproducible runs."
+    default: latest
   arguments:
     description: "Arguments to run `codehealth` with instead of the default diff check, for example `diff origin/main --format github --fail-on new-finding`. Split on whitespace; quotes are not interpreted. The step exits with codehealth's exit code. When set, base and fail-on are ignored and no history is fetched."
     default: ""
@@ -25,33 +25,39 @@ runs:
       shell: bash
       run: '"$GITHUB_ACTION_PATH/action/detect-target.sh" >> "$GITHUB_OUTPUT"'
 
+    - id: version
+      shell: bash
+      run: '"$GITHUB_ACTION_PATH/action/resolve-version.sh" "$CODEHEALTH_REQUESTED_VERSION" >> "$GITHUB_OUTPUT"'
+      env:
+        CODEHEALTH_REQUESTED_VERSION: ${{ inputs.version }}
+
     - id: cache
       uses: actions/cache@v4
       with:
-        path: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}
-        key: codehealth-${{ inputs.version }}-${{ steps.target.outputs.target }}
+        path: ${{ runner.tool_cache }}/codehealth/${{ steps.version.outputs.version }}/${{ steps.target.outputs.target }}
+        key: codehealth-${{ steps.version.outputs.version }}-${{ steps.target.outputs.target }}
 
     - if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: '"$GITHUB_ACTION_PATH/action/download.sh" "${{ inputs.version }}" "${{ steps.target.outputs.target }}" "$RUNNER_TOOL_CACHE/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}"'
+      run: '"$GITHUB_ACTION_PATH/action/download.sh" "${{ steps.version.outputs.version }}" "${{ steps.target.outputs.target }}" "$RUNNER_TOOL_CACHE/codehealth/${{ steps.version.outputs.version }}/${{ steps.target.outputs.target }}"'
 
     - shell: bash
       run: 'echo "$CODEHEALTH_DIRECTORY" >> "$GITHUB_PATH"'
       env:
-        CODEHEALTH_DIRECTORY: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}
+        CODEHEALTH_DIRECTORY: ${{ runner.tool_cache }}/codehealth/${{ steps.version.outputs.version }}/${{ steps.target.outputs.target }}
 
     - if: inputs.arguments != ''
       shell: bash
       run: '"$GITHUB_ACTION_PATH/action/run.sh"'
       env:
-        CODEHEALTH_BINARY: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}/codehealth${{ runner.os == 'Windows' && '.exe' || '' }}
+        CODEHEALTH_BINARY: ${{ runner.tool_cache }}/codehealth/${{ steps.version.outputs.version }}/${{ steps.target.outputs.target }}/codehealth${{ runner.os == 'Windows' && '.exe' || '' }}
         CODEHEALTH_ARGUMENTS: ${{ inputs.arguments }}
 
     - if: inputs.arguments == ''
       shell: bash
       run: '"$GITHUB_ACTION_PATH/action/check.sh"'
       env:
-        CODEHEALTH_BINARY: ${{ runner.tool_cache }}/codehealth/${{ inputs.version }}/${{ steps.target.outputs.target }}/codehealth${{ runner.os == 'Windows' && '.exe' || '' }}
+        CODEHEALTH_BINARY: ${{ runner.tool_cache }}/codehealth/${{ steps.version.outputs.version }}/${{ steps.target.outputs.target }}/codehealth${{ runner.os == 'Windows' && '.exe' || '' }}
         CODEHEALTH_BASE: ${{ inputs.base }}
         CODEHEALTH_FAIL_ON: ${{ inputs.fail-on }}
         PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
