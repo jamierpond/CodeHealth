@@ -6,7 +6,7 @@ branding:
 
 inputs:
   base:
-    description: Commit or ref to compare with. Default, the pull request's base (on a push, the commit before it).
+    description: "Commit or ref to compare with. Default: the pull request's base; on a push, the commit before it; with neither (a new branch, a tag, a manual run), the default branch. On the default branch with no earlier commit, the check is skipped with a notice."
     default: ""
   fail-on:
     description: "score-drop (a changed file's score fell or it gained a finding), new-finding, or never."
@@ -62,3 +62,4 @@ runs:
         CODEHEALTH_FAIL_ON: ${{ inputs.fail-on }}
         PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         PUSH_BEFORE_SHA: ${{ github.event.before }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}

@@ -48,7 +48,11 @@ summary lists each changed file's score before and after. Inputs:
 
 - `fail-on`: `score-drop` (default: a changed file's score fell or it gained a
   finding), `new-finding`, or `never`.
-- `base`: the commit to compare with (default: the pull request's base).
+- `base`: the commit to compare with. Default: the pull request's base; on a
+  push, the commit before it; when the event has neither (the first push of a
+  branch, a tag push, a manual run), the repository's default branch. On the
+  default branch itself with no earlier commit (the first push of a new
+  repository, or a manual run), the check passes with a notice.
 - `version`: the codehealth release to run (default: `latest`, the newest
   release, looked up on every run). Pin a tag such as `v0.1.1` for reproducible
   runs.

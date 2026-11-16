@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -90,3 +91,20 @@ jobs:
       - name: The pinned release is first on PATH
         shell: bash
         run: codehealth --version | tr -d "\r" | grep -Fx "codehealth 0.1.0"
+
+  action-without-earlier-commit:
+    name: Action compares with the default branch when the event names no earlier commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          fail-on: never
+      - name: Check with the before-sha a new branch's first push sends
+        shell: bash
+        run: '"$GITHUB_WORKSPACE/action/check.sh"'
+        env:
+          CODEHEALTH_BINARY: codehealth
+          CODEHEALTH_FAIL_ON: never
+          PUSH_BEFORE_SHA: "0000000000000000000000000000000000000000"
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
