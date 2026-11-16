@@ -5,7 +5,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
 
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/cmake/lockstep.cmake)
 
-project(CodeHealth VERSION 0.1.1 LANGUAGES C CXX)
+project(CodeHealth VERSION 0.1.2 LANGUAGES C CXX)
 
 if (APPLE)
     enable_language(OBJCXX)
