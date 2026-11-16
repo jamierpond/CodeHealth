@@ -5,6 +5,11 @@ is, from 1 to 10, and ranks hotspots: files that change often and are complex.
 It reads C, C++, Objective-C, Objective-C++, Python, TypeScript, TSX, JavaScript
 and JSX.
 
+This is an independent, unofficial approximation of
+[CodeScene](https://codescene.com)'s Code Health, not affiliated with CodeScene.
+For the real thing, use CodeScene, and watch their talks online: they explain
+the ideas behind it far better than this README can.
+
 ## Install
 
 macOS and Linux (x64 or arm64), into `~/.local/bin` (or `$CODEHEALTH_INSTALL_DIR`):
@@ -187,8 +192,6 @@ Code" (TechDebt 2024).
 - **Change coupling:** pairs of files changed in the same commits (at least 10
   shared commits and 30% of the less-changed file's), ignoring commits that touch
   more than 50 files.
-
-This is an independent implementation, not affiliated with CodeScene.
 
 ## License
 
