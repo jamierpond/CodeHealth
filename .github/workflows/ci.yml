@@ -67,3 +67,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./
+
+  action-arguments:
+    name: Action runs custom arguments (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          arguments: --version
+      - name: Run codehealth from PATH
+        shell: bash
+        run: codehealth --version

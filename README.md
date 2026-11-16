@@ -45,6 +45,22 @@ summary lists each changed file's score before and after. Inputs:
   finding), `new-finding`, or `never`.
 - `base`: the commit to compare with (default: the pull request's base).
 - `version`: the codehealth release to run.
+- `arguments`: run `codehealth <arguments>` instead of the diff check; the step
+  exits with codehealth's exit code, `base` and `fail-on` are ignored, and no
+  history is fetched. Split on whitespace; quotes are not interpreted.
+
+The action also adds the binary's directory to `PATH`, so later steps in the
+job can run `codehealth` themselves:
+
+```yaml
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: jamierpond/CodeHealth@v1
+        with:
+          arguments: diff origin/main --format github --fail-on new-finding
+      - run: codehealth health --top 5
+```
 
 Without the action, after installing:
 
