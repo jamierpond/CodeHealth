@@ -40,6 +40,12 @@ install: build
     if not exist "%USERPROFILE%\.local\bin" mkdir "%USERPROFILE%\.local\bin"
     copy /y build\codehealth.exe "%USERPROFILE%\.local\bin\codehealth.exe"
 
+[doc("Build everything, then run clang-tidy (eacp's checks) over CodeHealth's sources; fails on any finding")]
+[unix]
+tidy: build
+    cmake --build {{build_dir}}
+    scripts/tidy.sh {{build_dir}}
+
 [doc('clang-format every tracked source in place')]
 [unix]
 format:
