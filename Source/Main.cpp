@@ -10,6 +10,7 @@
 #include <eacp/Core/Utils/Console.h>
 #include <eacp/Core/Utils/Files.h>
 #include <eacp/Core/Utils/Format.h>
+#include <PondVersion.h>
 
 #include <algorithm>
 #include <array>
@@ -454,14 +455,16 @@ int runCodeHealth()
                "score the files without history and fail if any is below this");
     cli.positional(command.analysis.repository, "repository");
 
-    cli.flag("--version", command.printVersion, "print codehealth's version");
+    cli.flag("--version",
+             command.printVersion,
+             "print codehealth's version and the commit it was built from");
 
     if (auto code = cli.exitCodeFor(cli.parse()))
         return *code;
 
     if (command.printVersion)
     {
-        eacp::Console::print(std::string {"codehealth "} + CODEHEALTH_VERSION);
+        eacp::Console::print("codehealth " + pond::getVersionString());
         return 0;
     }
 

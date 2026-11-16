@@ -26,3 +26,5 @@ add_executable(CodeHealthTests
 target_link_libraries(CodeHealthTests PRIVATE NanoTest NanoTestMain CodeHealthCore)
 target_compile_definitions(CodeHealthTests PRIVATE CODEHEALTH_REPOSITORY_DIR="${PROJECT_SOURCE_DIR}")
 nano_discover_tests(CodeHealthTests)
+
+pond_add_version_test(codehealth codehealth)

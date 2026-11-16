@@ -110,6 +110,7 @@ codehealth path/to/repo --json            # everything, for scripts and agents
 codehealth path/to/repo --ref main --since 2026-01-01
 codehealth path/to/repo --jobs 8          # parser threads; defaults to the core count
 codehealth path/to/repo --check 9         # exit 1 if any file scores below 9
+codehealth --version                      # e.g. codehealth 0.1.2+f30059f: semver, then the commit it was built from
 ```
 
 `--check` scores the files without reading history, prints each file under the

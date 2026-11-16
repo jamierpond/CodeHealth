@@ -51,7 +51,11 @@ target_link_libraries(CodeHealthCore PUBLIC eacp-core PRIVATE tree-sitter-gramma
 
 add_executable(codehealth Source/Main.cpp)
 target_link_libraries(codehealth PRIVATE CodeHealthCore)
-target_compile_definitions(codehealth PRIVATE CODEHEALTH_VERSION="${PROJECT_VERSION}")
+
+# A copy of Rudder's: codehealth doesn't depend on Rudder.
+include(cmake/PondVersion.cmake)
+pond_add_version_library(CodeHealthVersion)
+target_link_libraries(codehealth PRIVATE CodeHealthVersion)
 
 if (PROJECT_IS_TOP_LEVEL)
     enable_testing()

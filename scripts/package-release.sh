@@ -8,7 +8,8 @@ cd "$(dirname "$0")/.."
 target="$1"
 binary=build/codehealth
 [ -x build/codehealth.exe ] && binary=build/codehealth.exe
-version="$("$binary" --version | tr -d '\r' | cut -d' ' -f2)"
+# --version prints "codehealth <semver>+<commit>"; the tag names the semver alone.
+version="$("$binary" --version | tr -d '\r' | cut -d' ' -f2 | cut -d+ -f1)"
 if [ -n "${GITHUB_REF_NAME:-}" ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
     echo "tag $GITHUB_REF_NAME does not match codehealth $version (CMakeLists.txt project VERSION)" >&2
     exit 1
